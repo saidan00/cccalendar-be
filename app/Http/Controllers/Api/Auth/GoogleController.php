@@ -15,13 +15,17 @@ class GoogleController extends Controller {
         // ở đây chúng ta dùng method stateless() để disable việc sử dụng session để verify state,
         // vì ở route/api.php sẽ không đi qua middleware tạo session nên sẽ không sử dụng được session.
         return Response::json([
-            'url' => Socialite::driver('google')->stateless()->redirect()->getTargetUrl(),
+            'url' => Socialite::driver('google')
+                ->with(['access_type' => 'offline'])->stateless()->redirect()->getTargetUrl(),
         ]);
     }
 
     public function loginCallback() {
         // Lấy user từ Google:
-        $googleUser = Socialite::driver('google')->stateless()->user();
+        $googleUser = Socialite::driver('google')
+            ->with(['access_type' => 'offline'])
+            ->stateless()
+            ->user();
         $user = null;
 
         DB::transaction(function () use ($googleUser, &$user) {
