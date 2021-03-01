@@ -9,8 +9,18 @@ use App\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Laravel\Socialite\Facades\Socialite;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class GoogleController extends Controller {
+    /**
+     * Create a new AuthController instance.
+     *
+     * @return void
+     */
+    public function __construct() {
+        $this->middleware('auth:api', ['except' => ['loginUrl', 'loginCallback']]);
+    }
+
     public function loginUrl() {
         // ở đây chúng ta dùng method stateless() để disable việc sử dụng session để verify state,
         // vì ở route/api.php sẽ không đi qua middleware tạo session nên sẽ không sử dụng được session.
@@ -46,9 +56,55 @@ class GoogleController extends Controller {
         });
 
         // Tạo một jwt token để user có thể đăng nhập, hiện tại response này chỉ để test, chưa trả về jwt
+        // return Response::json([
+        //     'user' => $user,
+        //     'google_user' => $googleUser,
+        // ]);
+        $token = JWTAuth::fromUser($user);
+        return $this->respondWithToken($token);
+    }
+
+    /**
+     * Get the authenticated User.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function me() {
+        return response()->json(auth()->user());
+    }
+
+    /**
+     * Log the user out (Invalidate the token).
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function logout() {
+        auth()->logout();
+
+        return response()->json(['message' => 'Successfully logged out']);
+    }
+
+    /**
+     * Refresh a token.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function refresh() {
+        return $this->respondWithToken(auth()->refresh());
+    }
+
+    /**
+     * Get the token array structure.
+     *
+     * @param  string $token
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    protected function respondWithToken($token) {
         return Response::json([
-            'user' => $user,
-            'google_user' => $googleUser,
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth()->factory()->getTTL() * 60
         ]);
     }
 }
