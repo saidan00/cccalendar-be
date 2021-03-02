@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
+use Illuminate\Support\Facades\Auth;
 use App\SocialAccount;
 use App\User;
 use Illuminate\Support\Facades\DB;
@@ -55,13 +56,13 @@ class GoogleController extends Controller {
             }
         });
 
-        // Tạo một jwt token để user có thể đăng nhập, hiện tại response này chỉ để test, chưa trả về jwt
+        // Tạo một jwt token để user có thể đăng nhập
         // return Response::json([
         //     'user' => $user,
         //     'google_user' => $googleUser,
         // ]);
         $token = JWTAuth::fromUser($user);
-        return $this->respondWithToken($token);
+        return $this->respondWithToken($token, $user);
     }
 
     /**
@@ -100,11 +101,16 @@ class GoogleController extends Controller {
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    protected function respondWithToken($token) {
+    protected function respondWithToken($token, $user = null) {
         return Response::json([
             'access_token' => $token,
+            'user' => $user,
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 60
         ]);
+    }
+
+    public function guard() {
+        return Auth::Guard('api');
     }
 }
