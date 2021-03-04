@@ -22,6 +22,18 @@ class GoogleController extends Controller {
         $this->middleware('auth:api', ['except' => ['loginUrl', 'loginCallback']]);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/auth/google/url",
+     *     tags={"google"},
+     *     @OA\Response(
+     *     response="200",
+     *     description="An Google login url",
+     *     @OA\JsonContent(
+     *     @OA\Property(property="url", type="string", example="https:\/\/accounts.google.com\/o\/oauth2\/auth?client_id=xxx")
+     *     )
+     * ))
+     */
     public function loginUrl() {
         // ở đây chúng ta dùng method stateless() để disable việc sử dụng session để verify state,
         // vì ở route/api.php sẽ không đi qua middleware tạo session nên sẽ không sử dụng được session.

@@ -1,0 +1,38 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "CCCalendar API",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/auth/google/url": {
+            "get": {
+                "tags": [
+                    "google"
+                ],
+                "operationId": "App\\Http\\Controllers\\Api\\Auth\\GoogleController::loginUrl",
+                "responses": {
+                    "200": {
+                        "description": "An Google login url",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "url": {
+                                            "type": "string",
+                                            "example": "https:\\/\\/accounts.google.com\\/o\\/oauth2\\/auth?client_id=xxx"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "security": [
+        []
+    ]
+}
