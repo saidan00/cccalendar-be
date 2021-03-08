@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Laravel\Socialite\Facades\Socialite;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Google_Client;
+use Google_Service_Calendar;
 
 class GoogleController extends Controller {
     /**
@@ -39,7 +41,11 @@ class GoogleController extends Controller {
         // vì ở route/api.php sẽ không đi qua middleware tạo session nên sẽ không sử dụng được session.
         return Response::json([
             'url' => Socialite::driver('google')
-                ->with(['access_type' => 'offline'])->stateless()->redirect()->getTargetUrl(),
+                ->scopes([Google_Service_Calendar::CALENDAR])
+                ->with(['access_type' => 'offline'])
+                ->stateless()
+                ->redirect()
+                ->getTargetUrl(),
         ]);
     }
 
