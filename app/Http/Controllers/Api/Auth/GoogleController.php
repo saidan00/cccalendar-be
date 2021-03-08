@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
-use App\Http\Controllers\Controller;
-use App\Http\Resources\UserResource;
-use Illuminate\Support\Facades\Auth;
 use App\SocialAccount;
 use App\User;
+use App\Http\Resources\User as UserResource;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Request;
 use Laravel\Socialite\Facades\Socialite;
-use Tymon\JWTAuth\Facades\JWTAuth;
-use Google_Client;
 use Google_Service_Calendar;
 
 class GoogleController extends Controller {
@@ -75,12 +74,13 @@ class GoogleController extends Controller {
         });
 
         // Tạo một jwt token để user có thể đăng nhập
+        $token = $googleUser->token;
+        // $test = Socialite::driver('google')->userFromToken($googleUser->token);
+        return $this->respondWithToken($token, $user, $googleUser->expiresIn);
         // return Response::json([
-        //     'user' => $user,
+        //     'user' => $test,
         //     'google_user' => $googleUser,
         // ]);
-        $token = JWTAuth::fromUser($user);
-        return $this->respondWithToken($token, $user);
     }
 
     /**
@@ -88,8 +88,12 @@ class GoogleController extends Controller {
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function me() {
-        return response()->json(auth()->user());
+    public function me(Request $request) {
+        $googleUser = Socialite::driver('google')
+            ->with(['access_type' => 'offline'])
+            ->stateless()
+            ->userFromToken($request->header('Authorization'));
+        return response()->json($googleUser);
     }
 
     /**
@@ -119,12 +123,13 @@ class GoogleController extends Controller {
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    protected function respondWithToken($token, $user = null) {
+    protected function respondWithToken($token, $user, $expiresIn) {
+        $userObject = isset($user) ? new UserResource($user) : null;
+
         return Response::json([
             'access_token' => $token,
-            'user' => $user,
-            'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
+            'user' => $userObject,
+            'expires_in' => $expiresIn
         ]);
     }
 

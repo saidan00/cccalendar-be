@@ -3,8 +3,20 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Laravel\Socialite\Facades\Socialite;
+use Google_Client;
 
 class CalendarController extends Controller {
+    /**
+     *
+     */
+    public function __construct() {
+        $user = Socialite::driver('google')->userFromToken();
+
+        $client = new Google_Client();
+    }
+
+
     /**
      * Display a listing of the resource.
      *

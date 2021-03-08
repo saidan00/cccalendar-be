@@ -18,15 +18,11 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // });
 
-// Route::group(['prefix' => 'auth'], function ($router) {
-//     Route::post(
-//         'login',
-//         'Api\GoogleController@login'
-//     );
-//     Route::post('logout', 'Api\GoogleController@logout');
-//     Route::post('refresh', 'Api\GoogleController@refresh');
-//     Route::post('me', 'Api\GoogleController@me');
-// });
+Route::group(['middleware' => 'google.auth'], function ($router) {
+    Route::post('logout', 'Api\Auth\GoogleController@logout');
+    // Route::post('refresh', 'Api\Auth\GoogleController@refresh');
+    Route::post('me', 'Api\Auth\GoogleController@me');
+});
 
 
 Route::get('auth/google/url', 'Api\Auth\GoogleController@loginUrl')->name('login');
