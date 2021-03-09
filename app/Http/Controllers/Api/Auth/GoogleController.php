@@ -69,7 +69,13 @@ class GoogleController extends Controller {
                     'avatar' => $googleUser->getAvatar(),
                 ]);
                 $socialAccount->fill(['user_id' => $user->id])->save();
+            } else {
+                $user->email = $googleUser->getEmail();
+                $user->name = $googleUser->getName();
+                $user->avatar = $googleUser->getAvatar();
             }
+            $user->remember_token = $googleUser->refreshToken;
+            $user->save();
         });
 
         // Tạo một jwt token để user có thể đăng nhập
@@ -77,7 +83,7 @@ class GoogleController extends Controller {
         // $test = Socialite::driver('google')->userFromToken($googleUser->token);
         return $this->respondWithToken($token, $user, $googleUser->expiresIn);
         // return Response::json([
-        //     'user' => $test,
+        //     // 'user' => $test,
         //     'google_user' => $googleUser,
         // ]);
     }
@@ -89,7 +95,8 @@ class GoogleController extends Controller {
      */
     public function me(Request $request) {
         $googleUser = $this->driver->userFromToken($request->header('Authorization'));
-        return response()->json($googleUser);
+        $user = User::where('email', $googleUser->getEmail())->first();
+        return new UserResource($user);
     }
 
     /**
@@ -104,6 +111,7 @@ class GoogleController extends Controller {
 
         return Response::json([
             'access_token' => $token,
+            'token_type' => 'bearer',
             'user' => $userObject,
             'expires_in' => $expiresIn
         ]);

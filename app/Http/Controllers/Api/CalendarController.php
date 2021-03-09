@@ -1,19 +1,32 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
-use Laravel\Socialite\Facades\Socialite;
 use Google_Client;
+use Google_Service_Calendar;
+use App\Http\Controllers\Controller;
 
 class CalendarController extends Controller {
+    protected $client;
+    protected $calendarService;
+
     /**
      *
      */
-    public function __construct() {
-        $user = Socialite::driver('google')->userFromToken();
+    public function __construct(Request $request) {
+        $token = $request->header('Authorization');
 
-        $client = new Google_Client();
+        // Set token for the Google API PHP Client
+        $google_client_token = [
+            'access_token' => $token,
+            'expires_in' => 3600
+        ];
+
+        $this->client = new Google_Client();
+        $this->client->setAccessToken(json_encode($google_client_token));
+
+        $this->calendarService = new Google_Service_Calendar($this->client);
     }
 
 
@@ -23,7 +36,17 @@ class CalendarController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index() {
-        //
+        $optParams = [
+            'timeMin' => [
+                'dateTime' => $this->convertTime($request->start)
+            ],
+            'timeMax' => [
+                'dateTime' => $this->convertTime($request->end)
+            ],
+        ];
+        // lấy danh sách tất cả events
+        $events = $this->calendarService->events->listEvents('primary')->getItems();
+        return response()->json($events);
     }
 
     /**

@@ -17,9 +17,14 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // });
 
-Route::middleware(['google.auth'])->group(function () {
+Route::group(['middleware' => ['google.auth']], function () {
     Route::post('logout', 'Api\Auth\GoogleController@logout');
     Route::post('me', 'Api\Auth\GoogleController@me');
+});
+
+Route::group(['middleware' => ['google.auth'], 'prefix' => 'calendar'], function () {
+    Route::get('/', 'Api\CalendarController@index');
+    // Route::post('me', 'Api\CalendarController@me');
 });
 
 
