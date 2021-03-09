@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\CalendarServiceHelper;
 use Illuminate\Http\Request;
 use Google_Client;
 use Google_Service_Calendar;
@@ -12,7 +13,7 @@ class CalendarController extends Controller {
     protected $calendarService;
 
     /**
-     *
+     * Set default parameters
      */
     public function __construct(Request $request) {
         $token = $request->header('Authorization');
@@ -29,24 +30,14 @@ class CalendarController extends Controller {
         $this->calendarService = new Google_Service_Calendar($this->client);
     }
 
-
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index() {
-        $optParams = [
-            'timeMin' => [
-                'dateTime' => $this->convertTime($request->start)
-            ],
-            'timeMax' => [
-                'dateTime' => $this->convertTime($request->end)
-            ],
-        ];
-        // lấy danh sách tất cả events
-        $events = $this->calendarService->events->listEvents('primary')->getItems();
-        return response()->json($events);
+    public function index(Request $request) {
+        $calendarServiceHelper = new CalendarServiceHelper($this->calendarService);
+        return response()->json($calendarServiceHelper->filter($request));
     }
 
     /**
