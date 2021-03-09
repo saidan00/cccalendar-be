@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,9 +17,8 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // });
 
-Route::group(['middleware' => 'google.auth'], function ($router) {
+Route::middleware(['google.auth'])->group(function () {
     Route::post('logout', 'Api\Auth\GoogleController@logout');
-    // Route::post('refresh', 'Api\Auth\GoogleController@refresh');
     Route::post('me', 'Api\Auth\GoogleController@me');
 });
 

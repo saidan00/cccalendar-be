@@ -18,7 +18,7 @@ class VerifyGoogleToken {
         try {
             Socialite::driver('google')->userFromToken($request->header('Authorization'));
         } catch (Exception $e) {
-            return response()->json(['message' => 'Unauthorized'], 401);
+            return response()->json(['message' => 'Unauthorized.'], 401);
         }
         return $next($request);
     }

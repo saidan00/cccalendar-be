@@ -6,21 +6,24 @@ use App\SocialAccount;
 use App\User;
 use App\Http\Resources\User as UserResource;
 use App\Http\Controllers\Controller;
+use App\Helpers\SocialDriver;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Request;
-use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Http\Request;
 use Google_Service_Calendar;
 
 class GoogleController extends Controller {
+    protected $driver;
+
     /**
      * Create a new AuthController instance.
      *
      * @return void
      */
     public function __construct() {
-        $this->middleware('auth:api', ['except' => ['loginUrl', 'loginCallback']]);
+        $socialDriver = new SocialDriver();
+        $this->driver = $socialDriver->getDriver();
     }
 
     /**
@@ -39,10 +42,8 @@ class GoogleController extends Controller {
         // ở đây chúng ta dùng method stateless() để disable việc sử dụng session để verify state,
         // vì ở route/api.php sẽ không đi qua middleware tạo session nên sẽ không sử dụng được session.
         return Response::json([
-            'url' => Socialite::driver('google')
+            'url' => $this->driver
                 ->scopes([Google_Service_Calendar::CALENDAR])
-                ->with(['access_type' => 'offline'])
-                ->stateless()
                 ->redirect()
                 ->getTargetUrl(),
         ]);
@@ -50,10 +51,7 @@ class GoogleController extends Controller {
 
     public function loginCallback() {
         // Lấy user từ Google:
-        $googleUser = Socialite::driver('google')
-            ->with(['access_type' => 'offline'])
-            ->stateless()
-            ->user();
+        $googleUser = $this->driver->user();
         $user = null;
 
         DB::transaction(function () use ($googleUser, &$user) {
@@ -68,6 +66,7 @@ class GoogleController extends Controller {
                 $user = User::create([
                     'email' => $googleUser->getEmail(),
                     'name' => $googleUser->getName(),
+                    'avatar' => $googleUser->getAvatar(),
                 ]);
                 $socialAccount->fill(['user_id' => $user->id])->save();
             }
@@ -89,31 +88,8 @@ class GoogleController extends Controller {
      * @return \Illuminate\Http\JsonResponse
      */
     public function me(Request $request) {
-        $googleUser = Socialite::driver('google')
-            ->with(['access_type' => 'offline'])
-            ->stateless()
-            ->userFromToken($request->header('Authorization'));
+        $googleUser = $this->driver->userFromToken($request->header('Authorization'));
         return response()->json($googleUser);
-    }
-
-    /**
-     * Log the user out (Invalidate the token).
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function logout() {
-        auth()->logout();
-
-        return response()->json(['message' => 'Successfully logged out']);
-    }
-
-    /**
-     * Refresh a token.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function refresh() {
-        return $this->respondWithToken(auth()->refresh());
     }
 
     /**
