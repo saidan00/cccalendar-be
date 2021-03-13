@@ -28,6 +28,11 @@ class GoogleController extends Controller
         $this->driver = $socialDriver->getDriver();
     }
 
+    /**
+     * Get Google login url
+     *
+     * @return Illuminate\Support\Facades\Response
+     */
     public function loginUrl()
     {
         // ở đây chúng ta dùng method stateless() để disable việc sử dụng session để verify state,

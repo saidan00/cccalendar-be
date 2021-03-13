@@ -35,11 +35,11 @@ class CalendarServiceHelper
         $optParams = [];
 
         if ($request->filled('start')) {
-            array_push($optParams, ['timeMin' => $this->convertTime($request->input('start'))]);
+            $optParams['timeMin'] = $this->convertTime($request->input('start'));
         }
 
         if ($request->filled('end')) {
-            array_push($optParams, ['timeMax' => $this->convertTime($request->input('end'))]);
+            $optParams['timeMax'] = $this->convertTime($request->input('end'));
         }
 
         // lấy danh sách events theo ngày
