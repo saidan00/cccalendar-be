@@ -22,9 +22,8 @@ Route::group(['middleware' => ['google.auth']], function () {
     Route::post('me', 'Api\Auth\GoogleController@me');
 });
 
-Route::group(['middleware' => ['google.auth'], 'prefix' => 'calendar'], function () {
+Route::prefix('calendar')->middleware('google.auth')->group(function () {
     Route::get('/', 'Api\CalendarController@index');
-    // Route::post('me', 'Api\CalendarController@me');
 });
 
 

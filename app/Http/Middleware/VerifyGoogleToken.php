@@ -3,10 +3,11 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Laravel\Socialite\Facades\Socialite;
 use Exception;
+use App\Helpers\SocialDriver;
 
-class VerifyGoogleToken {
+class VerifyGoogleToken
+{
     /**
      * Handle an incoming request.
      *
@@ -14,12 +15,15 @@ class VerifyGoogleToken {
      * @param  \Closure  $next
      * @return mixed
      */
-    public function handle($request, Closure $next) {
+    public function handle($request, Closure $next)
+    {
         try {
-            Socialite::driver('google')->userFromToken($request->header('Authorization'));
+            $socialDriver = new SocialDriver();
+            $driver = $socialDriver->getDriver();
+            $token = $request->header('Authorization');
+            $driver->userFromToken($token);
         } catch (Exception $e) {
-            return response()->json(['message' => 'Unauthorized.'], 401);
-            // return response()->json(['message' => $e->getMessage()], $e->getCode());
+            return response()->json(['message' => 'Unathorized.'], 401);
         }
         return $next($request);
     }

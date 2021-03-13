@@ -4,39 +4,19 @@ namespace App\Http\Controllers\Api;
 
 use App\Helpers\CalendarServiceHelper;
 use Illuminate\Http\Request;
-use Google_Client;
-use Google_Service_Calendar;
 use App\Http\Controllers\Controller;
 
-class CalendarController extends Controller {
-    protected $client;
-    protected $calendarService;
-
-    /**
-     * Set default parameters
-     */
-    public function __construct(Request $request) {
-        $token = $request->header('Authorization');
-
-        // Set token for the Google API PHP Client
-        $google_client_token = [
-            'access_token' => $token,
-            'expires_in' => 3600
-        ];
-
-        $this->client = new Google_Client();
-        $this->client->setAccessToken(json_encode($google_client_token));
-
-        $this->calendarService = new Google_Service_Calendar($this->client);
-    }
+class CalendarController extends Controller
+{
 
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request) {
-        $calendarServiceHelper = new CalendarServiceHelper($this->calendarService);
+    public function index(Request $request)
+    {
+        $calendarServiceHelper = new CalendarServiceHelper($request);
         return response()->json($calendarServiceHelper->filter($request));
     }
 
@@ -45,7 +25,8 @@ class CalendarController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public function create() {
+    public function create()
+    {
         //
     }
 
@@ -55,7 +36,8 @@ class CalendarController extends Controller {
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         //
     }
 
@@ -65,7 +47,8 @@ class CalendarController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id) {
+    public function show($id)
+    {
         //
     }
 
@@ -75,7 +58,8 @@ class CalendarController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id) {
+    public function edit($id)
+    {
         //
     }
 
@@ -86,7 +70,8 @@ class CalendarController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id) {
+    public function update(Request $request, $id)
+    {
         //
     }
 
@@ -96,7 +81,8 @@ class CalendarController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id) {
+    public function destroy($id)
+    {
         //
     }
 }
