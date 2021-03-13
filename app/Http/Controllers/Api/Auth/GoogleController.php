@@ -13,7 +13,8 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Http\Request;
 use Google_Service_Calendar;
 
-class GoogleController extends Controller {
+class GoogleController extends Controller
+{
     protected $driver;
 
     /**
@@ -21,24 +22,14 @@ class GoogleController extends Controller {
      *
      * @return void
      */
-    public function __construct() {
+    public function __construct()
+    {
         $socialDriver = new SocialDriver();
         $this->driver = $socialDriver->getDriver();
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/auth/google/url",
-     *     tags={"google"},
-     *     @OA\Response(
-     *     response="200",
-     *     description="An Google login url",
-     *     @OA\JsonContent(
-     *     @OA\Property(property="url", type="string", example="https:\/\/accounts.google.com\/o\/oauth2\/auth?client_id=xxx")
-     *     )
-     * ))
-     */
-    public function loginUrl() {
+    public function loginUrl()
+    {
         // ở đây chúng ta dùng method stateless() để disable việc sử dụng session để verify state,
         // vì ở route/api.php sẽ không đi qua middleware tạo session nên sẽ không sử dụng được session.
         return Response::json([
@@ -49,7 +40,8 @@ class GoogleController extends Controller {
         ]);
     }
 
-    public function loginCallback() {
+    public function loginCallback()
+    {
         // Lấy user từ Google:
         $googleUser = $this->driver->user();
         $user = null;
@@ -93,7 +85,8 @@ class GoogleController extends Controller {
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function me(Request $request) {
+    public function me(Request $request)
+    {
         $googleUser = $this->driver->userFromToken($request->header('Authorization'));
         $user = User::where('email', $googleUser->getEmail())->first();
         return new UserResource($user);
@@ -106,7 +99,8 @@ class GoogleController extends Controller {
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    protected function respondWithToken($token, $user, $expiresIn) {
+    protected function respondWithToken($token, $user, $expiresIn)
+    {
         $userObject = isset($user) ? new UserResource($user) : null;
 
         return Response::json([
@@ -117,7 +111,8 @@ class GoogleController extends Controller {
         ]);
     }
 
-    public function guard() {
+    public function guard()
+    {
         return Auth::Guard('api');
     }
 }
