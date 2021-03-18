@@ -8,10 +8,15 @@ use App\Http\Controllers\Controller;
 
 class CalendarController extends Controller
 {
+    /**
+     * List events
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index(Request $request)
     {
         $calendarServiceHelper = new CalendarServiceHelper($request);
-        return response()->json($calendarServiceHelper->filter($request));
+        return response()->json($calendarServiceHelper->listEvents($request));
     }
 
     /**
@@ -41,9 +46,10 @@ class CalendarController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        //
+        $calendarServiceHelper = new CalendarServiceHelper($request);
+        return response()->json($calendarServiceHelper->getEvent($id));
     }
 
     /**

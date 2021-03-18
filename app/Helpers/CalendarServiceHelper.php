@@ -29,21 +29,48 @@ class CalendarServiceHelper
         $this->calendarService = new Google_Service_Calendar($this->client);
     }
 
-    public function filter(Request $request)
+    public function getEvent($eventId)
+    {
+        $calendarId = 'primary';
+        return $this->calendarService->events->get($calendarId, $eventId);
+    }
+
+    public function listEvents(Request $request)
     {
         $events = [];
         $optParams = [];
+        $calendarId = 'primary';
 
+        $optParams['singleEvents'] = true;
+
+        // start parameter is not empty
+        // must be an RFC3339 timestamp, for example, 2011-06-03T10:00:00-07:00
         if ($request->filled('start')) {
             $optParams['timeMin'] = $this->convertTime($request->input('start'));
         }
 
+        // end parameter is not empty
+        // must be an RFC3339 timestamp, for example, 2011-06-03T10:00:00-07:00
         if ($request->filled('end')) {
             $optParams['timeMax'] = $this->convertTime($request->input('end'));
         }
 
-        // lấy danh sách events theo ngày
-        $events = $this->calendarService->events->listEvents('primary', $optParams)->getItems();
+        // searchTerms parameter is not empty
+        // find events that match these terms in any field, except for extended properties
+        if ($request->filled('searchTerms')) {
+            $optParams['q'] = $request->input('searchTerms');
+        }
+
+        // orderBy parameter is not empty
+        // accepted values: 'startTime', 'updated' (ascending)
+        // 'startTime' is only available when parameter singleEvents is True
+        $orderByAcceptedValues = ['startTime', 'updated'];
+        if ($request->filled('orderBy') && in_array($orderBy = $request->input('orderBy'), $orderByAcceptedValues)) {
+            $optParams['orderBy'] = $orderBy;
+        }
+
+        // lấy danh sách events theo điều kiện
+        $events = $this->calendarService->events->listEvents($calendarId, $optParams)->getItems();
 
         return $events;
     }
