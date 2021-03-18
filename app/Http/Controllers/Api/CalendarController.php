@@ -30,7 +30,7 @@ class CalendarController extends Controller
     {
         $calendarServiceHelper = new CalendarServiceHelper($request);
 
-        $calendarServiceHelper->insertEvent($request);
+        return response()->json($calendarServiceHelper->insertEvent($request));
     }
 
     /**

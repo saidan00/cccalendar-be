@@ -25,6 +25,9 @@ Route::group(['middleware' => ['google.auth']], function () {
 Route::prefix('calendar')->middleware('google.auth')->group(function () {
     Route::get('/', 'Api\CalendarController@index');
     Route::get('/{id}', 'Api\CalendarController@showEvent');
+    Route::post('/', 'Api\CalendarController@createEvent');
+    Route::put('/{id}', 'Api\CalendarController@updateEvent');
+    Route::delete('/{id}', 'Api\CalendarController@deleteEvent');
 });
 
 
