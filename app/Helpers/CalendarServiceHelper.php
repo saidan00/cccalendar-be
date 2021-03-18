@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Google_Client;
 use Google_Service_Calendar;
 use Illuminate\Support\Carbon;
+use App\Helpers\ResponseHelper;
+use Exception;
 
 class CalendarServiceHelper
 {
@@ -32,7 +34,15 @@ class CalendarServiceHelper
     public function getEvent($eventId)
     {
         $calendarId = 'primary';
-        return $this->calendarService->events->get($calendarId, $eventId);
+        $event = null;
+
+        try {
+            $event = $this->calendarService->events->get($calendarId, $eventId);
+        } catch (Exception $e) {
+            throw new Exception($e);
+        }
+
+        return $event;
     }
 
     public function listEvents(Request $request)

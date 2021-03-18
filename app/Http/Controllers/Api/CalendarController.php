@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Helpers\CalendarServiceHelper;
+use App\Helpers\ResponseHelper;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Exception;
 
 class CalendarController extends Controller
 {
@@ -49,7 +51,15 @@ class CalendarController extends Controller
     public function show(Request $request, $id)
     {
         $calendarServiceHelper = new CalendarServiceHelper($request);
-        return response()->json($calendarServiceHelper->getEvent($id));
+        $event = null;
+
+        try {
+            $event = $calendarServiceHelper->getEvent($id);
+        } catch (Exception $e) {
+            return ResponseHelper::response('No event found', 404);
+        }
+
+        return ResponseHelper::response($event);
     }
 
     /**

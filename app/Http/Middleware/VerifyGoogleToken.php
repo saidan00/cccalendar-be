@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Exception;
 use App\Helpers\SocialDriver;
+use App\Helpers\ResponseHelper;
 
 class VerifyGoogleToken
 {
@@ -23,7 +24,7 @@ class VerifyGoogleToken
             $token = $request->header('Authorization');
             $driver->userFromToken($token);
         } catch (Exception $e) {
-            return response()->json(['message' => 'Unathorized.'], 401);
+            return ResponseHelper::response('Unathorized', 401);
         }
         return $next($request);
     }
