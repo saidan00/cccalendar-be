@@ -26,9 +26,11 @@ class CalendarController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function createEvent(Request $request)
     {
-        //
+        $calendarServiceHelper = new CalendarServiceHelper($request);
+
+        $calendarServiceHelper->insertEvent($request);
     }
 
     /**
@@ -48,7 +50,7 @@ class CalendarController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, $id)
+    public function showEvent(Request $request, $id)
     {
         $calendarServiceHelper = new CalendarServiceHelper($request);
         $event = null;

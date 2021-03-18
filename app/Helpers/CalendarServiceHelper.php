@@ -3,17 +3,18 @@
 namespace App\Helpers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Google_Client;
 use Google_Service_Calendar;
-use Illuminate\Support\Carbon;
-use App\Helpers\ResponseHelper;
+use Google_Service_Calendar_Event;
 use Exception;
 
 class CalendarServiceHelper
 {
     protected $client;
     protected $calendarService;
-    protected $timezone = 'Asia/Ho_Chi_Minh';
+    protected $timezone;
+    protected $calendarId;
 
     public function __construct(Request $request)
     {
@@ -29,27 +30,33 @@ class CalendarServiceHelper
         $this->client->setAccessToken(json_encode($google_client_token));
 
         $this->calendarService = new Google_Service_Calendar($this->client);
+        $this->timezone = 'Asia/Ho_Chi_Minh';
+        $this->calendarId = 'primary';
     }
 
+    /**
+     * Get event by id
+     */
     public function getEvent($eventId)
     {
-        $calendarId = 'primary';
         $event = null;
 
         try {
-            $event = $this->calendarService->events->get($calendarId, $eventId);
+            $event = $this->calendarService->events->get($this->calendarId, $eventId);
         } catch (Exception $e) {
-            throw new Exception($e);
+            throw new Exception('No event found');
         }
 
         return $event;
     }
 
+    /**
+     * List events
+     */
     public function listEvents(Request $request)
     {
         $events = [];
         $optParams = [];
-        $calendarId = 'primary';
 
         $optParams['singleEvents'] = true;
 
@@ -80,9 +87,49 @@ class CalendarServiceHelper
         }
 
         // lấy danh sách events theo điều kiện
-        $events = $this->calendarService->events->listEvents($calendarId, $optParams)->getItems();
+        $events = $this->calendarService->events->listEvents($this->calendarId, $optParams)->getItems();
 
         return $events;
+    }
+
+    /**
+     * Insert event - request parameters: title, description, start, end, attendees
+     */
+    public function insertEvent(Request $request)
+    {
+        $event = new Google_Service_Calendar_Event([
+            'summary' => $request->input('title'),
+            'description' => $request->input('description'),
+            'start' => [
+                'dateTime' => $this->convertTime($request->input('start'))
+            ],
+            'end' => [
+                'dateTime' => $this->convertTime($request->input('end'))
+            ],
+            'attendees' => $this->getAttendees($request->input('attendees')),
+        ]);
+
+        $event = $this->calendarService->events->insert($this->calendarId, $event);
+
+        return $event;
+    }
+
+    /**
+     * Create attendees array from emails array
+     */
+    private function getAttendees(array $emails)
+    {
+        $attendees = [];
+
+        foreach ($emails as $email) {
+            if ($email) {
+                $attendees[] = [
+                    'email' => $email
+                ];
+            }
+        }
+
+        return $attendees;
     }
 
     private function convertTime($time, $min = 0)
