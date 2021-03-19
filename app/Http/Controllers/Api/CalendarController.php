@@ -31,8 +31,9 @@ class CalendarController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Create event
      *
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function createEvent(Request $request)
@@ -49,21 +50,10 @@ class CalendarController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Get event by id
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  string  $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function showEvent(Request $request, $id)
@@ -81,26 +71,29 @@ class CalendarController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
+     * Update event
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param  string  $id
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, $id)
+    public function updateEvent(Request $request, string $id)
     {
-        //
+        $validator = Validator::make($request->all(), $this->getStoreEventValidationRules());
+
+        if ($validator->fails()) {
+            return response()->json($validator->messages(), Response::HTTP_BAD_REQUEST);
+        } else {
+            $calendarServiceHelper = new CalendarServiceHelper($request);
+
+            try {
+                $event = $calendarServiceHelper->updateEvent($request, $id);
+            } catch (Exception $e) {
+                return ResponseHelper::response('No event found', Response::HTTP_NOT_FOUND);
+            }
+
+            return response()->json($event);
+        }
     }
 
     /**

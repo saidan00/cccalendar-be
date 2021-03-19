@@ -115,6 +115,35 @@ class CalendarServiceHelper
     }
 
     /**
+     * Update event - request parameters: title, description, start, end, attendees
+     */
+    public function updateEvent(Request $request, string $eventId)
+    {
+        $event = null;
+
+        try {
+            $event = new Google_Service_Calendar_Event([
+                'summary' => $request->input('title'),
+                'description' => $request->input('description'),
+                'start' => [
+                    'dateTime' => $this->convertTime($request->input('start'))
+                ],
+                'end' => [
+                    'dateTime' => $this->convertTime($request->input('end'))
+                ],
+                'attendees' => $this->getAttendees($request->input('attendees')),
+            ]);
+
+            $event = $this->calendarService->events->update($this->calendarId, $eventId, $event);
+        } catch (Exception $e) {
+            throw new Exception('No event found');
+        }
+
+        return $event;
+    }
+
+
+    /**
      * Create attendees array from emails array
      */
     private function getAttendees(array $emails)
