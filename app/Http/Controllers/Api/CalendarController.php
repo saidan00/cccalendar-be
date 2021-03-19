@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Helpers\CalendarServiceHelper;
 use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
+use App\Rules\MultipleDateFormat;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
@@ -19,13 +20,10 @@ class CalendarController extends Controller
      */
     public function index(Request $request)
     {
-        $validator = Validator::make($request->json()->all(), $this->getListEventsValidationRules());
+        $validator = Validator::make($request->all(), $this->getListEventsValidationRules());
 
         if ($validator->fails()) {
-            return response()->json(
-                $validator->messages(),
-                Response::HTTP_BAD_REQUEST
-            );
+            return response()->json($validator->messages(), Response::HTTP_BAD_REQUEST);
         } else {
             $calendarServiceHelper = new CalendarServiceHelper($request);
             return response()->json($calendarServiceHelper->listEvents($request));
@@ -39,13 +37,10 @@ class CalendarController extends Controller
      */
     public function createEvent(Request $request)
     {
-        $validator = Validator::make($request->json()->all(), $this->getStoreEventValidationRules());
+        $validator = Validator::make($request->all(), $this->getStoreEventValidationRules());
 
         if ($validator->fails()) {
-            return response()->json(
-                $validator->messages(),
-                Response::HTTP_BAD_REQUEST
-            );
+            return response()->json($validator->messages(), Response::HTTP_BAD_REQUEST);
         } else {
             $calendarServiceHelper = new CalendarServiceHelper($request);
 
@@ -132,9 +127,14 @@ class CalendarController extends Controller
 
     private function getListEventsValidationRules()
     {
+        $formats = [
+            'Y-m-d H:i',
+            'Y-m-d'
+        ];
+
         return [
-            'start' => 'date_format:Y-m-d H:i',
-            'end' => 'date_format:Y-m-d H:i',
+            'start' => new MultipleDateFormat($formats),
+            'end' => new MultipleDateFormat($formats),
         ];
     }
 }
