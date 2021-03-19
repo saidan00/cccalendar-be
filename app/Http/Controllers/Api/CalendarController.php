@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Helpers\CalendarServiceHelper;
 use App\Helpers\ResponseHelper;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Validator;
 use Exception;
 
 class CalendarController extends Controller
@@ -13,24 +15,42 @@ class CalendarController extends Controller
     /**
      * List events
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
     {
-        $calendarServiceHelper = new CalendarServiceHelper($request);
-        return response()->json($calendarServiceHelper->listEvents($request));
+        $validator = Validator::make($request->json()->all(), $this->getListEventsValidationRules());
+
+        if ($validator->fails()) {
+            return response()->json(
+                $validator->messages(),
+                Response::HTTP_BAD_REQUEST
+            );
+        } else {
+            $calendarServiceHelper = new CalendarServiceHelper($request);
+            return response()->json($calendarServiceHelper->listEvents($request));
+        }
     }
 
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function createEvent(Request $request)
     {
-        $calendarServiceHelper = new CalendarServiceHelper($request);
+        $validator = Validator::make($request->json()->all(), $this->getStoreEventValidationRules());
 
-        return response()->json($calendarServiceHelper->insertEvent($request));
+        if ($validator->fails()) {
+            return response()->json(
+                $validator->messages(),
+                Response::HTTP_BAD_REQUEST
+            );
+        } else {
+            $calendarServiceHelper = new CalendarServiceHelper($request);
+
+            return response()->json($calendarServiceHelper->insertEvent($request));
+        }
     }
 
     /**
@@ -47,8 +67,9 @@ class CalendarController extends Controller
     /**
      * Display the specified resource.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function showEvent(Request $request, $id)
     {
@@ -58,7 +79,7 @@ class CalendarController extends Controller
         try {
             $event = $calendarServiceHelper->getEvent($id);
         } catch (Exception $e) {
-            return ResponseHelper::response('No event found', 404);
+            return ResponseHelper::response('No event found', Response::HTTP_NOT_FOUND);
         }
 
         return ResponseHelper::response($event);
@@ -96,5 +117,24 @@ class CalendarController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    private function getStoreEventValidationRules()
+    {
+        return [
+            'title' => 'required|max:255',
+            'description' => '',
+            'start' => 'required|date_format:Y-m-d H:i',
+            'end' => 'required|date_format:Y-m-d H:i',
+            'attendees.*' => 'email',
+        ];
+    }
+
+    private function getListEventsValidationRules()
+    {
+        return [
+            'start' => 'date_format:Y-m-d H:i',
+            'end' => 'date_format:Y-m-d H:i',
+        ];
     }
 }

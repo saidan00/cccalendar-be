@@ -6,6 +6,7 @@ use Closure;
 use Exception;
 use App\Helpers\SocialDriver;
 use App\Helpers\ResponseHelper;
+use Illuminate\Http\Response;
 
 class VerifyGoogleToken
 {
@@ -24,7 +25,7 @@ class VerifyGoogleToken
             $token = $request->header('Authorization');
             $driver->userFromToken($token);
         } catch (Exception $e) {
-            return ResponseHelper::response('Unathorized', 401);
+            return ResponseHelper::response('Unathorized', Response::HTTP_UNAUTHORIZED);
         }
         return $next($request);
     }
