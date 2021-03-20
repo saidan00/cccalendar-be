@@ -113,7 +113,7 @@ class CalendarController extends Controller
             return ResponseHelper::response('No event found', Response::HTTP_NOT_FOUND);
         }
 
-        return ResponseHelper::response($event);
+        return response()->json($event);
     }
 
     private function getStoreEventValidationRules()
