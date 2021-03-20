@@ -25,7 +25,8 @@ class VerifyGoogleToken
             $token = $request->header('Authorization');
             $driver->userFromToken($token);
         } catch (Exception $e) {
-            return ResponseHelper::response('Unathorized', Response::HTTP_UNAUTHORIZED);
+            $message = trans('Unauthorized');
+            return ResponseHelper::response($message, Response::HTTP_UNAUTHORIZED);
         }
         return $next($request);
     }
