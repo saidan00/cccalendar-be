@@ -142,6 +142,19 @@ class CalendarServiceHelper
         return $event;
     }
 
+    public function deleteEvent($eventId)
+    {
+        $event = null;
+
+        try {
+            $event = $this->calendarService->events->delete($this->calendarId, $eventId);
+        } catch (Exception $e) {
+            throw new Exception('No event found');
+        }
+
+        return $event;
+    }
+
 
     /**
      * Create attendees array from emails array

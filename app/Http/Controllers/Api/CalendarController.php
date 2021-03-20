@@ -100,11 +100,20 @@ class CalendarController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy($id)
+    public function deleteEvent(Request $request, $id)
     {
-        //
+        $calendarServiceHelper = new CalendarServiceHelper($request);
+        $event = null;
+
+        try {
+            $event = $calendarServiceHelper->deleteEvent($id);
+        } catch (Exception $e) {
+            return ResponseHelper::response('No event found', Response::HTTP_NOT_FOUND);
+        }
+
+        return ResponseHelper::response($event);
     }
 
     private function getStoreEventValidationRules()
