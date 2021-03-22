@@ -64,7 +64,7 @@ class CalendarController extends Controller
         try {
             $event = $calendarServiceHelper->getEvent($id);
         } catch (Exception $e) {
-            return ResponseHelper::response('No event found', Response::HTTP_NOT_FOUND);
+            return ResponseHelper::response(trans('No event found'), Response::HTTP_NOT_FOUND);
         }
 
         return ResponseHelper::response($event);
@@ -89,7 +89,7 @@ class CalendarController extends Controller
             try {
                 $event = $calendarServiceHelper->updateEvent($request, $id);
             } catch (Exception $e) {
-                return ResponseHelper::response('No event found', Response::HTTP_NOT_FOUND);
+                return ResponseHelper::response(trans('No event found'), Response::HTTP_NOT_FOUND);
             }
 
             return response()->json($event);
@@ -110,7 +110,7 @@ class CalendarController extends Controller
         try {
             $event = $calendarServiceHelper->deleteEvent($id);
         } catch (Exception $e) {
-            return ResponseHelper::response('No event found', Response::HTTP_NOT_FOUND);
+            return ResponseHelper::response(trans('No event found'), Response::HTTP_NOT_FOUND);
         }
 
         return response()->json($event);
