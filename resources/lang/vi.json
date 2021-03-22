@@ -1,4 +1,11 @@
 {
     "Unauthorized": "Chưa thể xác thực",
-    "No event found": "Không tìm thấy sự kiện nào"
+    "No event found": "Không tìm thấy sự kiện nào",
+    "The title field is required": "Vui lòng điền tiêu đề",
+    "The start field is required": "Vui lòng điền ngày bắt đầu",
+    "The end field is required": "Vui lòng điền ngày kết thúc",
+    "The max length of title field is 255": "Độ dài tối đa của tiêu đề là 255",
+    "The start field must be in format Y-m-d H:i": "Ngày phải đúng chuẩn Y-m-d H:i",
+    "The end field must be in format Y-m-d H:i": "Ngày phải đúng chuẩn Y-m-d H:i",
+    "The attendees field must be valid email format": "Vui lòng nhập email đúng"
 }

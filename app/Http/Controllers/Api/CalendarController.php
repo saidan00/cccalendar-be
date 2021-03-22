@@ -38,7 +38,11 @@ class CalendarController extends Controller
      */
     public function createEvent(Request $request)
     {
-        $validator = Validator::make($request->all(), $this->getStoreEventValidationRules());
+        $validator = Validator::make(
+            $request->all(),
+            $this->getStoreEventValidationRules(),
+            $this->getStoreEventValidationMessages()
+        );
 
         if ($validator->fails()) {
             return response()->json($validator->messages(), Response::HTTP_BAD_REQUEST);
@@ -79,7 +83,11 @@ class CalendarController extends Controller
      */
     public function updateEvent(Request $request, string $id)
     {
-        $validator = Validator::make($request->all(), $this->getStoreEventValidationRules());
+        $validator = Validator::make(
+            $request->all(),
+            $this->getStoreEventValidationRules(),
+            $this->getStoreEventValidationMessages()
+        );
 
         if ($validator->fails()) {
             return response()->json($validator->messages(), Response::HTTP_BAD_REQUEST);
@@ -124,6 +132,19 @@ class CalendarController extends Controller
             'start' => 'required|date_format:Y-m-d H:i',
             'end' => 'required|date_format:Y-m-d H:i',
             'attendees.*' => 'email',
+        ];
+    }
+
+    private function getStoreEventValidationMessages()
+    {
+        return [
+            'title.required' => trans('The title field is required'),
+            'title.max' => trans('The max length of title field is 255'),
+            'start.required' => trans('The start field is required'),
+            'start.date_format' => trans('The start field must be in format Y-m-d H:i'),
+            'end.required' => trans('The end field is requiredddd'),
+            'end.date_format' => trans('The end field must be in format Y-m-d H:i'),
+            'attendees.*.email' => trans('The attendees field must be valid email format'),
         ];
     }
 
