@@ -9,7 +9,7 @@ use App\Repositories\DiaryRepository;
 class DiaryController extends Controller
 {
     /**
-     * @var PostRepositoryInterface|\App\Repositories\Repository
+     * @var \App\Repositories\DiaryRepository
      */
     protected $diaryRepository;
 
@@ -38,7 +38,13 @@ class DiaryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->all();
+
+        //... Validation here
+
+        $diary = $this->diaryRepository->create($data);
+
+        return response()->json($diary);
     }
 
     /**
@@ -49,7 +55,9 @@ class DiaryController extends Controller
      */
     public function show($id)
     {
-        //
+        $diary = $this->diaryRepository->find($id);
+
+        return response()->json($diary);
     }
 
     /**
@@ -61,7 +69,13 @@ class DiaryController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $data = $request->all();
+
+        //... Validation here
+
+        $diary = $this->diaryRepository->update($id, $data);
+
+        return response()->json($diary);
     }
 
     /**
@@ -72,6 +86,8 @@ class DiaryController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $isDeleted = $this->diaryRepository->delete($id);
+
+        return response()->json($isDeleted);
     }
 }

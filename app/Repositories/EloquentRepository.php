@@ -61,7 +61,6 @@ abstract class EloquentRepository
      */
     public function create(array $attributes)
     {
-
         return $this->_model->create($attributes);
     }
 
