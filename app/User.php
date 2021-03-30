@@ -6,7 +6,8 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable implements JWTSubject {
+class User extends Authenticatable implements JWTSubject
+{
     use Notifiable;
 
     /**
@@ -41,7 +42,8 @@ class User extends Authenticatable implements JWTSubject {
      *
      * @return mixed
      */
-    public function getJWTIdentifier() {
+    public function getJWTIdentifier()
+    {
         return $this->getKey();
     }
 
@@ -50,7 +52,13 @@ class User extends Authenticatable implements JWTSubject {
      *
      * @return array
      */
-    public function getJWTCustomClaims() {
+    public function getJWTCustomClaims()
+    {
         return [];
+    }
+
+    public function socialAccount()
+    {
+        return $this->hasOne('App\SocialAccount', 'user_id', 'id');
     }
 }

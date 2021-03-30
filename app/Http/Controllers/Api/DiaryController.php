@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\SocialDriver;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Repositories\DiaryRepository;
@@ -13,9 +14,15 @@ class DiaryController extends Controller
      */
     protected $diaryRepository;
 
-    public function __construct(DiaryRepository $diaryRepository)
+    /**
+     * @var \App\Helpers\SocialDriver
+     */
+    protected $socialDriver;
+
+    public function __construct(DiaryRepository $diaryRepository, SocialDriver $socialDriver)
     {
         $this->diaryRepository = $diaryRepository;
+        $this->socialDriver = $socialDriver;
     }
 
     /**
@@ -39,9 +46,11 @@ class DiaryController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
+        $token = $request->header('Authorization');
 
         //... Validation here
 
+        $user = $this->socialDriver->getUser($token);
         $diary = $this->diaryRepository->create($data);
 
         return response()->json($diary);
