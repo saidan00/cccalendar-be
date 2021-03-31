@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Helpers\CalendarServiceHelper;
 use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
+use App\Repositories\CalendarEventRepository;
 use App\Rules\MultipleDateFormat;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -13,6 +13,16 @@ use Exception;
 
 class CalendarController extends Controller
 {
+    /**
+     * @var \App\Repositories\CalendarEventRepository
+     */
+    protected $calendarEventRepository;
+
+    public function __construct(CalendarEventRepository $calendarEventRepository)
+    {
+        $this->calendarEventRepository = $calendarEventRepository;
+    }
+
     /**
      * List events
      *
@@ -25,8 +35,7 @@ class CalendarController extends Controller
         if ($validator->fails()) {
             return response()->json($validator->messages(), Response::HTTP_BAD_REQUEST);
         } else {
-            $calendarServiceHelper = new CalendarServiceHelper($request);
-            return response()->json($calendarServiceHelper->listEvents($request));
+            return response()->json($this->calendarEventRepository->listEvents($request));
         }
     }
 
@@ -47,9 +56,7 @@ class CalendarController extends Controller
         if ($validator->fails()) {
             return response()->json($validator->messages(), Response::HTTP_BAD_REQUEST);
         } else {
-            $calendarServiceHelper = new CalendarServiceHelper($request);
-
-            return response()->json($calendarServiceHelper->insertEvent($request));
+            return response()->json($this->calendarEventRepository->insertEvent($request));
         }
     }
 
@@ -62,11 +69,10 @@ class CalendarController extends Controller
      */
     public function showEvent(Request $request, $id)
     {
-        $calendarServiceHelper = new CalendarServiceHelper($request);
         $event = null;
 
         try {
-            $event = $calendarServiceHelper->getEvent($id);
+            $event = $this->calendarEventRepository->getEvent($id);
         } catch (Exception $e) {
             return ResponseHelper::response(trans('No event found'), Response::HTTP_NOT_FOUND);
         }
@@ -92,10 +98,8 @@ class CalendarController extends Controller
         if ($validator->fails()) {
             return response()->json($validator->messages(), Response::HTTP_BAD_REQUEST);
         } else {
-            $calendarServiceHelper = new CalendarServiceHelper($request);
-
             try {
-                $event = $calendarServiceHelper->updateEvent($request, $id);
+                $event = $this->calendarEventRepository->updateEvent($request, $id);
             } catch (Exception $e) {
                 return ResponseHelper::response(trans('No event found'), Response::HTTP_NOT_FOUND);
             }
@@ -112,11 +116,10 @@ class CalendarController extends Controller
      */
     public function deleteEvent(Request $request, $id)
     {
-        $calendarServiceHelper = new CalendarServiceHelper($request);
         $event = null;
 
         try {
-            $event = $calendarServiceHelper->deleteEvent($id);
+            $event = $this->calendarEventRepository->deleteEvent($id);
         } catch (Exception $e) {
             return ResponseHelper::response(trans('No event found'), Response::HTTP_NOT_FOUND);
         }
