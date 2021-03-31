@@ -2,12 +2,12 @@
 
 namespace App\Repositories;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
+use Exception;
 use Google_Client;
 use Google_Service_Calendar;
 use Google_Service_Calendar_Event;
-use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class CalendarEventRepository
 {

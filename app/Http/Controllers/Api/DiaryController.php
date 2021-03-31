@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Helpers\SocialDriver;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Repositories\DiaryRepository;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Validator;
 
 class DiaryController extends Controller
 {
@@ -47,12 +49,22 @@ class DiaryController extends Controller
     {
         $data = $request->all();
 
-        //... Validation here
+        $validator = Validator::make(
+            $data,
+            $this->getStoreDiaryValidationRules(),
+            $this->getStoreDiaryValidationMessages()
+        );
 
-        $user = $this->socialDriver->getUser();
-        $diary = $this->diaryRepository->create($data);
+        if ($validator->fails()) {
+            return response()->json($validator->messages(), Response::HTTP_BAD_REQUEST);
+        } else {
+            $user = $this->socialDriver->getUser();
+            $data['user_id'] = $user->id;
 
-        return response()->json($diary);
+            $diary = $this->diaryRepository->create($data);
+
+            return response()->json($diary);
+        }
     }
 
     /**
@@ -77,13 +89,21 @@ class DiaryController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $data = $request->all();
+        $data = $request->except(['user_id']);
 
-        //... Validation here
+        $validator = Validator::make(
+            $data,
+            $this->getListDiaryValidationRules(),
+            $this->getStoreDiaryValidationMessages()
+        );
 
-        $diary = $this->diaryRepository->update($id, $data);
+        if ($validator->fails()) {
+            return response()->json($validator->messages(), Response::HTTP_BAD_REQUEST);
+        } else {
+            $diary = $this->diaryRepository->update($id, $data);
 
-        return response()->json($diary);
+            return response()->json($diary);
+        }
     }
 
     /**
@@ -97,5 +117,20 @@ class DiaryController extends Controller
         $isDeleted = $this->diaryRepository->delete($id);
 
         return response()->json($isDeleted);
+    }
+
+    private function getStoreDiaryValidationRules()
+    {
+        return [
+            'title' => 'required|max:255'
+        ];
+    }
+
+    private function getStoreDiaryValidationMessages()
+    {
+        return [
+            'title.required' => trans('The title field is required'),
+            'title.max' => trans('The max length of title field is 255'),
+        ];
     }
 }

@@ -2,17 +2,16 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
+use App\Helpers\SocialDriver;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\User as UserResource;
 use App\SocialAccount;
 use App\User;
-use App\Http\Resources\User as UserResource;
-use App\Http\Controllers\Controller;
-use App\Helpers\SocialDriver;
+use Google_Service_Calendar;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
-use Illuminate\Http\Request;
-use Google_Service_Calendar;
-use Laravel\Socialite\Facades\Socialite;
 
 class GoogleController extends Controller
 {

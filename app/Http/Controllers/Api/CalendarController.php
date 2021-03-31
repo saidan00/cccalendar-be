@@ -6,10 +6,10 @@ use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Repositories\CalendarEventRepository;
 use App\Rules\MultipleDateFormat;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
-use Exception;
 
 class CalendarController extends Controller
 {
