@@ -3,15 +3,20 @@
 namespace App\Helpers;
 
 use App\SocialAccount;
+use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
 
 class SocialDriver
 {
     protected $driver;
-    protected $provider = 'google';
+    protected $provider;
+    protected $token;
 
-    public function __construct()
+    public function __construct(Request $request)
     {
+        $this->provider = 'google';
+        $this->token = $request->header('Authorization');
+
         $this->driver = Socialite::driver($this->provider)
             ->with(['access_type' => 'offline'])
             ->stateless();
@@ -22,9 +27,9 @@ class SocialDriver
         return $this->driver;
     }
 
-    public function getUser($token)
+    public function getUser()
     {
-        $googleUser = $this->driver->userFromToken($token);
+        $googleUser = $this->driver->userFromToken($this->token);
         $user = SocialAccount::where("social_id", $googleUser->id)->first()->user;
         return $user;
     }

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Http\Request;
 use Google_Service_Calendar;
+use Laravel\Socialite\Facades\Socialite;
 
 class GoogleController extends Controller
 {
@@ -22,9 +23,8 @@ class GoogleController extends Controller
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(SocialDriver $socialDriver)
     {
-        $socialDriver = new SocialDriver();
         $this->driver = $socialDriver->getDriver();
     }
 

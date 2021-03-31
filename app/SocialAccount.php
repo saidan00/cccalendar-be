@@ -4,7 +4,8 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class SocialAccount extends Model {
+class SocialAccount extends Model
+{
     protected $fillable = [
         'user_id',
         'social_id',
@@ -12,7 +13,8 @@ class SocialAccount extends Model {
         'social_name',
     ];
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 }

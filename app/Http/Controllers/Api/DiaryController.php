@@ -46,11 +46,10 @@ class DiaryController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
-        $token = $request->header('Authorization');
 
         //... Validation here
 
-        $user = $this->socialDriver->getUser($token);
+        $user = $this->socialDriver->getUser();
         $diary = $this->diaryRepository->create($data);
 
         return response()->json($diary);

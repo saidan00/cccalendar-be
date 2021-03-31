@@ -61,4 +61,13 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne('App\SocialAccount', 'user_id', 'id');
     }
+
+    public function tags()
+    {
+        // biến thứ 3 là foreign key của model trung gian (model UserTag)
+        // biến thứ 4 là foreign key của model cuối cùng (model Tag)
+        // biến thứ 5 là local key (primary key của user)
+        // biến thứ 6 là local key (primary key của tag)
+        return $this->hasManyThrough(Tag::class, UserTag::class, 'user_id', 'tag_id', 'id', 'id');
+    }
 }
