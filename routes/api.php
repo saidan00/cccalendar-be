@@ -31,7 +31,7 @@ Route::prefix('calendar')->middleware('google.auth')->group(function () {
 });
 
 // ->middleware('google.auth')
-Route::prefix('diary')->group(function () {
+Route::prefix('diary')->middleware('google.auth')->group(function () {
     Route::get('/', 'Api\DiaryController@index');
     Route::get('/{id}', 'Api\DiaryController@show');
     Route::post('/', 'Api\DiaryController@store');

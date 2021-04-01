@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Helpers\SocialDriver;
+use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Repositories\DiaryRepository;
 use Illuminate\Http\Request;
@@ -16,15 +16,9 @@ class DiaryController extends Controller
      */
     protected $diaryRepository;
 
-    /**
-     * @var \App\Helpers\SocialDriver
-     */
-    protected $socialDriver;
-
-    public function __construct(DiaryRepository $diaryRepository, SocialDriver $socialDriver)
+    public function __construct(DiaryRepository $diaryRepository)
     {
         $this->diaryRepository = $diaryRepository;
-        $this->socialDriver = $socialDriver;
     }
 
     /**
@@ -32,9 +26,11 @@ class DiaryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $diaries = $this->diaryRepository->getAll();
+        $user = $request->get('user');
+
+        $diaries = $this->diaryRepository->getAll($user->id);
 
         return response()->json($diaries);
     }
@@ -47,7 +43,7 @@ class DiaryController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->all();
+        $data = $request->except(['user_id']);
 
         $validator = Validator::make(
             $data,
@@ -58,7 +54,7 @@ class DiaryController extends Controller
         if ($validator->fails()) {
             return response()->json($validator->messages(), Response::HTTP_BAD_REQUEST);
         } else {
-            $user = $this->socialDriver->getUser();
+            $user = $request->get('user');
             $data['user_id'] = $user->id;
 
             $diary = $this->diaryRepository->create($data);
@@ -73,11 +69,16 @@ class DiaryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $diary = $this->diaryRepository->find($id);
+        $user = $request->get('user');
+        $diary = $this->diaryRepository->find($id, $user->id);
 
-        return response()->json($diary);
+        if (!$diary) {
+            return ResponseHelper::response(trans('No diary found'), Response::HTTP_NOT_FOUND);
+        } else {
+            return response()->json($diary);
+        }
     }
 
     /**
@@ -93,14 +94,21 @@ class DiaryController extends Controller
 
         $validator = Validator::make(
             $data,
-            $this->getListDiaryValidationRules(),
+            $this->getStoreDiaryValidationRules(),
             $this->getStoreDiaryValidationMessages()
         );
 
         if ($validator->fails()) {
             return response()->json($validator->messages(), Response::HTTP_BAD_REQUEST);
         } else {
-            $diary = $this->diaryRepository->update($id, $data);
+            $user = $request->get('user');
+
+            $diary = $this->diaryRepository->update($id, $data, $user->id);
+
+            // if $diary == false
+            if (!$diary) {
+                return ResponseHelper::response(trans('No diary found'), Response::HTTP_NOT_FOUND);
+            }
 
             return response()->json($diary);
         }
@@ -112,11 +120,16 @@ class DiaryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $isDeleted = $this->diaryRepository->delete($id);
+        $user = $request->get('user');
+        $diary = $this->diaryRepository->delete($id, $user->id);
 
-        return response()->json($isDeleted);
+        if (!$diary) {
+            return ResponseHelper::response(trans('No diary found'), Response::HTTP_NOT_FOUND);
+        } else {
+            return response()->json($diary);
+        }
     }
 
     private function getStoreDiaryValidationRules()

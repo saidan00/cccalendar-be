@@ -2,10 +2,10 @@
 
 namespace App\Repositories;
 
-use App\Repositories\EloquentRepository;
 use App\Diary;
+use App\Repositories\EloquentWithAuthRepository;
 
-class DiaryRepository extends EloquentRepository
+class DiaryRepository extends EloquentWithAuthRepository
 {
     /**
      * get model

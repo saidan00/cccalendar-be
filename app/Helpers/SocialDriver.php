@@ -11,9 +11,12 @@ class SocialDriver
     protected $driver;
     protected $provider;
     protected $token;
+    protected $user;
 
     public function __construct(Request $request)
     {
+        $this->user = null;
+
         $this->provider = 'google';
         $this->token = $request->header('Authorization');
 
@@ -27,10 +30,19 @@ class SocialDriver
         return $this->driver;
     }
 
+    public function getToken()
+    {
+        return $this->token;
+    }
+
     public function getUser()
     {
-        $googleUser = $this->driver->userFromToken($this->token);
-        $user = SocialAccount::where("social_id", $googleUser->id)->first()->user;
-        return $user;
+        // if user == null
+        if (!$this->user) {
+            $googleUser = $this->driver->userFromToken($this->token);
+            $this->user = SocialAccount::where("social_id", $googleUser->id)->first()->user;
+        }
+
+        return $this->user;
     }
 }
