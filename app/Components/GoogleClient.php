@@ -33,17 +33,23 @@ class GoogleClient
      */
     public function getClient()
     {
-        $google_client_token = [
-            'access_token' => $this->token,
-            'expires_in' => 3600
-        ];
+        $user = null;
 
-        $this->client->setAccessToken(json_encode($google_client_token));
+        if (!($user = auth()->user())) {
+            return null;
+        } else {
+            $google_client_token = [
+                'access_token' => $this->token,
+                'expires_in' => 3600
+            ];
 
-        if ($this->client->isAccessTokenExpired()) {
-            $this->client->fetchAccessTokenWithRefreshToken(auth()->user()->google_refresh_token);
+            $this->client->setAccessToken(json_encode($google_client_token));
+
+            if ($this->client->isAccessTokenExpired()) {
+                $this->client->fetchAccessTokenWithRefreshToken($user->google_refresh_token);
+            }
+
+            return $this->client;
         }
-
-        return $this->client;
     }
 }
