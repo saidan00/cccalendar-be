@@ -2,8 +2,8 @@
 
 namespace App\Repositories;
 
+use App\Components\GoogleClient;
 use Exception;
-use Google_Client;
 use Google_Service_Calendar;
 use Google_Service_Calendar_Event;
 use Illuminate\Http\Request;
@@ -17,27 +17,14 @@ class CalendarEventRepository
     protected $calendarId;
     protected $token;
 
-    public function __construct(Request $request)
+    public function __construct(GoogleClient $googleClient)
     {
-        $this->token = $request->header('Authorization');
-
         $this->calendarService = null;
         $this->timezone = 'Asia/Ho_Chi_Minh';
         $this->calendarId = 'primary';
-    }
 
-    public function getCalendarService()
-    {
-        // Set token for the Google API PHP Client
-        $google_client_token = [
-            'access_token' => $this->token,
-            'expires_in' => 3600
-        ];
-
-        $this->client = new Google_Client();
-        $this->client->setAccessToken(json_encode($google_client_token));
-
-        return new Google_Service_Calendar($this->client);
+        $this->client = $googleClient->getClient();
+        $this->calendarService = new Google_Service_Calendar($this->client);
     }
 
     /**
@@ -45,9 +32,6 @@ class CalendarEventRepository
      */
     public function getEvent($eventId)
     {
-        // if calendarService is null => getCalendarService()
-        $this->calendarService = $this->calendarService ?? $this->getCalendarService();
-
         $event = null;
 
         try {
@@ -64,9 +48,6 @@ class CalendarEventRepository
      */
     public function listEvents(Request $request)
     {
-        // if calendarService is null => getCalendarService()
-        $this->calendarService = $this->calendarService ?? $this->getCalendarService();
-
         $events = [];
         $optParams = [];
 
@@ -109,9 +90,6 @@ class CalendarEventRepository
      */
     public function insertEvent(Request $request)
     {
-        // if calendarService is null => getCalendarService()
-        $this->calendarService = $this->calendarService ?? $this->getCalendarService();
-
         $event = new Google_Service_Calendar_Event([
             'summary' => $request->input('title'),
             'description' => $request->input('description'),
@@ -134,9 +112,6 @@ class CalendarEventRepository
      */
     public function updateEvent(Request $request, string $eventId)
     {
-        // if calendarService is null => getCalendarService()
-        $this->calendarService = $this->calendarService ?? $this->getCalendarService();
-
         $event = null;
 
         try {
@@ -162,9 +137,6 @@ class CalendarEventRepository
 
     public function deleteEvent($eventId)
     {
-        // if calendarService is null => getCalendarService()
-        $this->calendarService = $this->calendarService ?? $this->getCalendarService();
-
         $event = null;
 
         try {

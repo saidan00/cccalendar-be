@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class GoogleController extends Controller
 {
@@ -58,6 +59,7 @@ class GoogleController extends Controller
             );
 
             // nếu tài khoản này chưa liên kết với user nào thì sẽ tạo một tài khoản user mới
+            // if $user == null
             if (!($user = $socialAccount->user)) {
                 $user = User::create([
                     'email' => $googleUser->getEmail(),
@@ -70,18 +72,18 @@ class GoogleController extends Controller
                 $user->name = $googleUser->getName();
                 $user->avatar = $googleUser->getAvatar();
             }
-            $user->remember_token = $googleUser->refreshToken;
+            $user->google_refresh_token = $googleUser->refreshToken;
             $user->save();
         });
 
         // Tạo một jwt token để user có thể đăng nhập
-        $token = $googleUser->token;
-        // $test = Socialite::driver('google')->userFromToken($googleUser->token);
-        return $this->respondWithToken($token, $user, $googleUser->expiresIn);
-        // return Response::json([
-        //     // 'user' => $test,
-        //     'google_user' => $googleUser,
-        // ]);
+        // token này là của web chúng ta
+        $token = JWTAuth::fromUser($user);
+
+        // token này là của google
+        $googleToken = $googleUser->token;
+
+        return $this->respondWithToken($token, $googleToken, $user, $googleUser->expiresIn);
     }
 
     /**
@@ -103,12 +105,13 @@ class GoogleController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    protected function respondWithToken($token, $user, $expiresIn)
+    protected function respondWithToken($token, $googleToken, $user, $expiresIn)
     {
         $userObject = isset($user) ? new UserResource($user) : null;
 
         return Response::json([
             'access_token' => $token,
+            'google_access_token' => $googleToken,
             'token_type' => 'bearer',
             'user' => $userObject,
             'expires_in' => $expiresIn

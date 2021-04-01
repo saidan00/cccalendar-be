@@ -15,10 +15,10 @@ class SocialDriver
     public function __construct(Request $request)
     {
         $this->provider = 'google';
-        $this->token = $request->header('Authorization');
+        $this->token = $request->header('GoogleAuthorization');
 
         $this->driver = Socialite::driver($this->provider)
-            ->with(['access_type' => 'offline'])
+            ->with(['access_type' => 'offline', 'prompt' => 'consent select_account'])
             ->stateless();
     }
 
