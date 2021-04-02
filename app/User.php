@@ -2,9 +2,9 @@
 
 namespace App;
 
-use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -68,6 +68,8 @@ class User extends Authenticatable implements JWTSubject
         // biến thứ 4 là foreign key của model cuối cùng (model Tag)
         // biến thứ 5 là local key (primary key của user)
         // biến thứ 6 là local key (primary key của tag)
-        return $this->hasManyThrough(Tag::class, UserTag::class, 'user_id', 'tag_id', 'id', 'id');
+        // return $this->hasManyThrough(Tag::class, UserTag::class, 'user_id', 'tag_id', 'id', 'id');
+
+        return $this->hasMany(Tag::class, '$user_id', '$id');
     }
 }
