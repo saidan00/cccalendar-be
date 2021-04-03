@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CalendarEvent as CalendarEventResource;
 use App\Repositories\CalendarEventRepository;
 use App\Rules\MultipleDateFormat;
 use Exception;
@@ -35,7 +36,8 @@ class CalendarController extends Controller
         if ($validator->fails()) {
             return response()->json($validator->messages(), Response::HTTP_BAD_REQUEST);
         } else {
-            return response()->json($this->calendarEventRepository->listEvents($request));
+            return CalendarEventResource::collection($this->calendarEventRepository->listEvents($request));
+            // return response()->json($this->calendarEventRepository->listEvents($request));
         }
     }
 
