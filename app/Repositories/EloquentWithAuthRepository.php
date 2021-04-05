@@ -73,7 +73,7 @@ abstract class EloquentWithAuthRepository extends EloquentRepository
         return false;
     }
 
-    private function isOwner($userId, $modelId)
+    protected function isOwner($userId, $modelId)
     {
         return $userId === $modelId;
     }

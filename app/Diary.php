@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\DiaryTag;
 use Illuminate\Database\Eloquent\Model;
 
 class Diary extends Model
@@ -17,5 +18,10 @@ class Diary extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function tags()
+    {
+        return $this->hasManyThrough(Tag::class, DiaryTag::class, 'diary_id', 'id', 'tag_id', 'id');
     }
 }

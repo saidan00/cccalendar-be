@@ -20,9 +20,9 @@ trait AddTagsToModelTrait
         return $tags;
     }
 
-    public function getTagsQueryBinding($tags)
+    public function getTagsQueryBinding(array $tagsName)
     {
-        $tagsCount = count($tags);
+        $tagsCount = count($tagsName);
         $queryBinding = '';
 
         for ($i = 0; $i < $tagsCount; $i++) {
@@ -34,12 +34,11 @@ trait AddTagsToModelTrait
 
     public function insertNewTags($tagsName, $user_id)
     {
-        // INSERT INTO cart_items(cart_id, product_id, quantity, created_at, updated_at) VALUES(?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE quantity = VALUES(quantity) + quantity '
         $tags = $this->getTags($tagsName, $user_id);
 
         $query = 'INSERT INTO tags (name, user_id) VALUES ' . $this->getTagsQueryBinding($tagsName) . ' ON DUPLICATE KEY UPDATE id=id';
 
-        $test = DB::statement($query, $tags);
+        DB::insert($query, $tags);
 
         return;
     }
