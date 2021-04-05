@@ -30,13 +30,20 @@ Route::prefix('calendar')->middleware('google.auth')->group(function () {
     Route::delete('/{id}', 'Api\CalendarController@deleteEvent');
 });
 
-// ->middleware('google.auth')
 Route::prefix('diary')->middleware('google.auth')->group(function () {
     Route::get('/', 'Api\DiaryController@index');
     Route::get('/{id}', 'Api\DiaryController@show');
     Route::post('/', 'Api\DiaryController@store');
     Route::put('/{id}', 'Api\DiaryController@update');
     Route::delete('/{id}', 'Api\DiaryController@destroy');
+});
+
+Route::prefix('tag')->middleware('google.auth')->group(function () {
+    Route::get('/', 'Api\TagController@index');
+    Route::get('/{id}', 'Api\TagController@show');
+    Route::post('/', 'Api\TagController@store');
+    Route::put('/{id}', 'Api\TagController@update');
+    Route::delete('/{id}', 'Api\TagController@destroy');
 });
 
 
