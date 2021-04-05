@@ -22,6 +22,6 @@ class Diary extends Model
 
     public function tags()
     {
-        return $this->hasManyThrough(Tag::class, DiaryTag::class, 'diary_id', 'id', 'tag_id', 'id');
+        return $this->hasManyThrough(Tag::class, DiaryTag::class, 'diary_id', 'id', 'id', 'tag_id');
     }
 }

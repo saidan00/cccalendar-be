@@ -2,11 +2,9 @@
 
 namespace App\Http\Resources;
 
-use App\Http\Resources\Tag as TagResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-
-class Diary extends JsonResource
+class Tag extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -19,9 +17,7 @@ class Diary extends JsonResource
         // return parent::toArray($request);
         return [
             'id' => $this->id,
-            'title' => $this->title,
-            'content' => $this->content,
-            'tags' => TagResource::collection($this->tags),
+            'name' => $this->name
         ];
     }
 }

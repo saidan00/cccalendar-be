@@ -24,7 +24,7 @@ class DiaryRepository extends EloquentWithAuthRepository
 
         if ($diary) {
             $data = $this->getTagsToInsertDiaryTags($id, $tags);
-            DB::table('diary_tags')->insert($this->getTagsToInsertDiaryTags($id, $tags));
+            DB::table('diary_tags')->insert($data);
             return $diary;
         }
 

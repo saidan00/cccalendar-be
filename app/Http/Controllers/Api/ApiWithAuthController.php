@@ -12,14 +12,26 @@ use Illuminate\Support\Facades\Validator;
 abstract class ApiWithAuthController extends Controller
 {
     /**
-     * @var \App\Repositories\EloquentWithAuthRepository
+     * @var App\Repositories\EloquentWithAuthRepository
      */
     protected $repository;
+
+    /**
+     * @var string
+     */
+    protected $resource;
 
     public function __construct(EloquentWithAuthRepository $repository)
     {
         $this->repository = $repository;
+        $this->resource = $this->getResource();
     }
+
+    /**
+     * get JsonResource as string
+     * @return string
+     */
+    abstract public function getResource();
 
     /**
      * Display a listing of the resource.
@@ -32,7 +44,7 @@ abstract class ApiWithAuthController extends Controller
 
         $entities = $this->repository->getAll($user->id);
 
-        return response()->json($entities);
+        return $this->resource::collection($entities);
     }
 
     /**
@@ -59,7 +71,7 @@ abstract class ApiWithAuthController extends Controller
 
             $entity = $this->repository->create($data);
 
-            return response()->json($entity);
+            return new $this->resource($entity);
         }
     }
 
@@ -77,7 +89,7 @@ abstract class ApiWithAuthController extends Controller
         if (!$entity) {
             return ResponseHelper::response(trans('Not found'), Response::HTTP_NOT_FOUND);
         } else {
-            return response()->json($entity);
+            return new $this->resource($entity);
         }
     }
 
@@ -110,7 +122,7 @@ abstract class ApiWithAuthController extends Controller
                 return ResponseHelper::response(trans('Not found'), Response::HTTP_NOT_FOUND);
             }
 
-            return response()->json($entity);
+            return new $this->resource($entity);
         }
     }
 
