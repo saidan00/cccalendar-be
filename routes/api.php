@@ -47,5 +47,8 @@ Route::prefix('tag')->middleware('google.auth')->group(function () {
 });
 
 
+Route::post('/diray/addtags', 'Api\DiaryController@addTags');
+
+
 Route::get('auth/google/url', 'Api\Auth\GoogleController@loginUrl')->name('login');
 Route::get('auth/google/callback', 'Api\Auth\GoogleController@loginCallback');
