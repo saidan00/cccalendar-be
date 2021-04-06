@@ -28,13 +28,13 @@ abstract class EloquentWithAuthRepository extends EloquentRepository
      */
     public function find($id, $user_id = null)
     {
-        $result = $this->_model->find($id);
+        $result = $this->_model
+            ->where([
+                ['id', '=', $id],
+                ['user_id', '=', $user_id],
+            ])->first();
 
-        if ($this->isOwner($user_id, $result->user_id)) {
-            return $result;
-        }
-
-        return null;
+        return $result;
     }
 
     /**
@@ -71,10 +71,5 @@ abstract class EloquentWithAuthRepository extends EloquentRepository
         }
 
         return false;
-    }
-
-    protected function isOwner($userId, $modelId)
-    {
-        return $userId === $modelId;
     }
 }

@@ -140,7 +140,7 @@ abstract class ApiWithAuthController extends Controller
         if (!$entity) {
             return ResponseHelper::response(trans('Not found'), Response::HTTP_NOT_FOUND);
         } else {
-            return response()->json($entity);
+            return response()->json();
         }
     }
 

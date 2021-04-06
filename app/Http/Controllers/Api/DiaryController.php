@@ -68,23 +68,13 @@ class DiaryController extends ApiWithAuthController
         } else {
             DB::transaction(function () use ($diary, $id, $user) {
                 // xoá các diary_tag
-                $this->tagRepository->deleteByDiaryId($diary->id);
+                $this->tagRepository->deleteReferenceByDiaryId($diary->id);
 
                 // xoá diary
                 $this->repository->delete($id, $user->id);
-
-                // xóa các tag không có diary khác tham chiếu đến
             });
 
             return response()->json();
-        }
-
-        $entity = $this->repository->delete($id, $user->id);
-
-        if (!$entity) {
-            return ResponseHelper::response(trans('Not found'), Response::HTTP_NOT_FOUND);
-        } else {
-            return response()->json($entity);
         }
     }
 
@@ -122,7 +112,7 @@ class DiaryController extends ApiWithAuthController
                         // update diary
                         $diary = $this->repository->update($id, $data, $data['user_id']);
                         // xóa tất cả tag cũ của diary (nếu có)
-                        $this->tagRepository->deleteByDiaryId($diary->id);
+                        $this->tagRepository->deleteReferenceByDiaryId($diary->id);
                         break;
                 }
 
