@@ -131,8 +131,8 @@ class DiaryController extends ApiWithAuthController
     {
         return [
             'title' => 'required|max:255',
-            'tags' => 'required|array',
-            'tags.*' => 'required'
+            'tags' => 'array',
+            'tags.*' => 'required|string'
         ];
     }
 
@@ -141,9 +141,9 @@ class DiaryController extends ApiWithAuthController
         return [
             'title.required' => trans('The title field is required'),
             'title.max' => trans('The max length of title field is 255'),
-            'tags.required' => trans('The tags field is required, if there is no tag, please pass an empty array'),
             'tags.array' => trans('The tags must be type of array'),
             'tags.*.required' => trans('The tag name is required'),
+            'tags.*.string' => trans('The tag must be type of string'),
         ];
     }
 }

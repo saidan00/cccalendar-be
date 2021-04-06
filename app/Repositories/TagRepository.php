@@ -31,6 +31,11 @@ class TagRepository extends EloquentWithAuthRepository
         DB::table('diary_tags')->where('diary_id', '=', $diaryId)->delete();
     }
 
+    public function deleteReferenceByEventId($eventId)
+    {
+        DB::table('event_tags')->where('event_id', '=', $eventId)->delete();
+    }
+
     public function deleteReferenceByTagId($tagId)
     {
         DB::table('diary_tags')->where('tag_id', '=', $tagId)->delete();

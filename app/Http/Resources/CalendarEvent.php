@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Tag as TagResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class CalendarEvent extends JsonResource
@@ -22,7 +23,7 @@ class CalendarEvent extends JsonResource
             'start' => $this->start->dateTime,
             'end' => $this->end->dateTime,
             'attendees' => CalendarEventAttendee::collection($this->attendees),
-            'tags' => $this->tags(),
+            'tags' => TagResource::collection($this->tags()),
         ];
     }
 }

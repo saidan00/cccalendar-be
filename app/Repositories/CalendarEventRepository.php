@@ -5,7 +5,6 @@ namespace App\Repositories;
 use App\Components\GoogleServiceCalendarEvent;
 use Exception;
 use Google_Client;
-use Google_Model;
 use Google_Service_Calendar;
 use Google_Service_Calendar_Event;
 use Illuminate\Http\Request;
@@ -58,7 +57,7 @@ class CalendarEventRepository
             throw new Exception('No event found');
         }
 
-        return $event;
+        return $this->mapToGoogleServiceCalendarEvent($event);
     }
 
     /**
@@ -128,7 +127,7 @@ class CalendarEventRepository
 
         $event = $this->calendarService->events->insert($this->calendarId, $event);
 
-        return $event;
+        return $this->mapToGoogleServiceCalendarEvent($event);
     }
 
     /**
@@ -159,7 +158,7 @@ class CalendarEventRepository
             throw new Exception('No event found');
         }
 
-        return $event;
+        return $this->mapToGoogleServiceCalendarEvent($event);
     }
 
     public function deleteEvent($eventId)
