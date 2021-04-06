@@ -20,6 +20,7 @@ class CalendarEvent extends JsonResource
             'description' => $this->description,
             'start' => $this->start->dateTime,
             'end' => $this->end->dateTime,
+            'attendees' => CalendarEventAttendee::collection($this->attendees),
         ];
     }
 }

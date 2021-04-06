@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Diary;
+use App\Helpers\ResponseHelper;
 use App\Http\Resources\Diary as DiaryResource;
 use App\Http\Traits\AddTagsToModelTrait;
 use App\Repositories\DiaryRepository;
@@ -50,6 +50,42 @@ class DiaryController extends ApiWithAuthController
     public function update(Request $request, $id)
     {
         return $this->createOrUpdate($request, 'update', $id);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Request $request, $id)
+    {
+        $user = $request->get('user');
+        $diary = $this->repository->find($id, $user->id);
+
+        if (!$diary) {
+            return ResponseHelper::response(trans('Not found'), Response::HTTP_NOT_FOUND);
+        } else {
+            DB::transaction(function () use ($diary, $id, $user) {
+                // xoá các diary_tag
+                $this->tagRepository->deleteByDiaryId($diary->id);
+
+                // xoá diary
+                $this->repository->delete($id, $user->id);
+
+                // xóa các tag không có diary khác tham chiếu đến
+            });
+
+            return response()->json();
+        }
+
+        $entity = $this->repository->delete($id, $user->id);
+
+        if (!$entity) {
+            return ResponseHelper::response(trans('Not found'), Response::HTTP_NOT_FOUND);
+        } else {
+            return response()->json($entity);
+        }
     }
 
     private function createOrUpdate(Request $request, $createOrUpdate = 'create', $id = null)

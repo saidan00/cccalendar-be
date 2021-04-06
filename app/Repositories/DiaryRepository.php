@@ -3,7 +3,6 @@
 namespace App\Repositories;
 
 use App\Diary;
-use App\Http\Traits\AddTagsToModelTrait;
 use App\Repositories\EloquentWithAuthRepository;
 use Illuminate\Support\Facades\DB;
 

@@ -64,7 +64,8 @@ class TagRepository extends EloquentWithAuthRepository
         $tags = $this->getTags($tagsName, $user_id);
 
         // tránh auto increment id khi insert on duplicate
-        DB::statement("SET @NEW_AI = (SELECT MAX(`id`) + 1 FROM `tags`);");
+        // set auto_increment = max(id) + 1
+        DB::statement("SET @NEW_AI = IFNULL((SELECT MAX(`id`) + 1 FROM `tags`),1);");
         DB::statement("SET @ALTER_SQL = CONCAT('ALTER TABLE `tags` AUTO_INCREMENT =', @NEW_AI);");
         DB::statement("PREPARE NEWSQL FROM @ALTER_SQL;");
         DB::statement("EXECUTE NEWSQL;");

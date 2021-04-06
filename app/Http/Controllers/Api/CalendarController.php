@@ -58,7 +58,8 @@ class CalendarController extends Controller
         if ($validator->fails()) {
             return response()->json($validator->messages(), Response::HTTP_BAD_REQUEST);
         } else {
-            return response()->json($this->calendarEventRepository->insertEvent($request));
+            $event = $this->calendarEventRepository->insertEvent($request);
+            return new CalendarEventResource($event);
         }
     }
 
@@ -79,7 +80,8 @@ class CalendarController extends Controller
             return ResponseHelper::response(trans('No event found'), Response::HTTP_NOT_FOUND);
         }
 
-        return ResponseHelper::response($event);
+        return new CalendarEventResource($event);
+        // return response()->json($event);
     }
 
     /**
@@ -106,7 +108,8 @@ class CalendarController extends Controller
                 return ResponseHelper::response(trans('No event found'), Response::HTTP_NOT_FOUND);
             }
 
-            return response()->json($event);
+            return new CalendarEventResource($event);
+            // return response()->json($event);
         }
     }
 
@@ -118,15 +121,13 @@ class CalendarController extends Controller
      */
     public function deleteEvent(Request $request, $id)
     {
-        $event = null;
-
         try {
-            $event = $this->calendarEventRepository->deleteEvent($id);
+            $this->calendarEventRepository->deleteEvent($id);
         } catch (Exception $e) {
             return ResponseHelper::response(trans('No event found'), Response::HTTP_NOT_FOUND);
         }
 
-        return response()->json($event);
+        return response()->json();
     }
 
     private function getStoreEventValidationRules()
