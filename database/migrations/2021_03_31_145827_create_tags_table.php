@@ -16,7 +16,7 @@ class CreateTagsTable extends Migration
     {
         Schema::create('tags', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 255);
+            $table->string('name', 255)->charset('utf8mb4')->collation('utf8mb4_bin');
 
             $table->foreignId('user_id');
             $table->foreign('user_id')->references('id')->on('users');
