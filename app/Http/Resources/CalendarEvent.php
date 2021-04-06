@@ -16,11 +16,13 @@ class CalendarEvent extends JsonResource
     {
         // return parent::toArray($request);
         return [
+            'id' => $this->id,
             'title' => $this->summary,
             'description' => $this->description,
             'start' => $this->start->dateTime,
             'end' => $this->end->dateTime,
             'attendees' => CalendarEventAttendee::collection($this->attendees),
+            'tags' => $this->tags(),
         ];
     }
 }

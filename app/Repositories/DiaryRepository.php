@@ -30,6 +30,9 @@ class DiaryRepository extends EloquentWithAuthRepository
         return false;
     }
 
+    /**
+     * return mảng tags [['diary_id', 'tag_id'], [], ...] để map vào query
+     */
     public function getTagsToInsertDiaryTags($diaryId, $tags)
     {
         $tagsToInsert = [];

@@ -2,8 +2,10 @@
 
 namespace App\Repositories;
 
+use App\Components\GoogleServiceCalendarEvent;
 use Exception;
 use Google_Client;
+use Google_Model;
 use Google_Service_Calendar;
 use Google_Service_Calendar_Event;
 use Illuminate\Http\Request;
@@ -101,7 +103,7 @@ class CalendarEventRepository
         // lấy danh sách events theo điều kiện
         $events = $this->calendarService->events->listEvents($this->calendarId, $optParams)->getItems();
 
-        return $events;
+        return $this->mapToGoogleServiceCalendarEvents($events);
     }
 
     /**
@@ -176,7 +178,6 @@ class CalendarEventRepository
         return $event;
     }
 
-
     /**
      * Create attendees array from emails array
      */
@@ -193,6 +194,25 @@ class CalendarEventRepository
         }
 
         return $attendees;
+    }
+
+    /**
+     * Map to GoogleServiceCalendarEvent component
+     */
+    private function mapToGoogleServiceCalendarEvent($event)
+    {
+        return new GoogleServiceCalendarEvent($event);
+    }
+
+    private function mapToGoogleServiceCalendarEvents(array $events)
+    {
+        $eventsToReturn = [];
+
+        foreach ($events as $event) {
+            $eventsToReturn[] = $this->mapToGoogleServiceCalendarEvent($event);
+        }
+
+        return $eventsToReturn;
     }
 
     private function convertTime($time, $min = 0)

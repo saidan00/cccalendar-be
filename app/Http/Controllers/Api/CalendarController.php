@@ -36,7 +36,9 @@ class CalendarController extends Controller
         if ($validator->fails()) {
             return response()->json($validator->messages(), Response::HTTP_BAD_REQUEST);
         } else {
-            return CalendarEventResource::collection($this->calendarEventRepository->listEvents($request));
+            $events = $this->calendarEventRepository->listEvents($request);
+
+            return CalendarEventResource::collection($events);
             // return response()->json($this->calendarEventRepository->listEvents($request));
         }
     }
