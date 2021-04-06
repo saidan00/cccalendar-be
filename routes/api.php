@@ -30,6 +30,13 @@ Route::prefix('calendar')->middleware('google.auth')->group(function () {
     Route::delete('/{id}', 'Api\CalendarController@deleteEvent');
 });
 
+Route::prefix('calendar-colors')->middleware('google.auth')->group(
+    function () {
+        Route::get('/', 'Api\CalendarController@listColors');
+    }
+);
+
+
 Route::prefix('diary')->middleware('google.auth')->group(function () {
     Route::get('/', 'Api\DiaryController@index');
     Route::get('/{id}', 'Api\DiaryController@show');

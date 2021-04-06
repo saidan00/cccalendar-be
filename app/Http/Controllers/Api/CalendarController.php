@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CalendarEvent as CalendarEventResource;
+use App\Http\Resources\CalendarEventColor as CalendarEventColorResource;
 use App\Repositories\CalendarEventRepository;
 use App\Repositories\EventRepository;
 use App\Repositories\TagRepository;
@@ -56,6 +57,17 @@ class CalendarController extends Controller
             return CalendarEventResource::collection($events);
             // return response()->json($this->calendarEventRepository->listEvents($request));
         }
+    }
+
+    /**
+     * List colors
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function listColors(Request $request)
+    {
+        $colors = $this->calendarEventRepository->listColors();
+        return new CalendarEventColorResource($colors->getEvent());
     }
 
     /**
@@ -198,7 +210,8 @@ class CalendarController extends Controller
             'attendees' => 'array',
             'attendees.*' => 'email',
             'tags' => 'array',
-            'tags.*' => 'required|string'
+            'tags.*' => 'required|string',
+            'colorId' => 'integer|between:1,11',
         ];
     }
 
@@ -216,6 +229,7 @@ class CalendarController extends Controller
             'tags.array' => trans('The tags must be type of array'),
             'tags.*.required' => trans('The tag name is required'),
             'tags.*.string' => trans('The tag must be type of string'),
+            'colorId.between' => trans('Colord ID must be integer in range [1,11]'),
         ];
     }
 

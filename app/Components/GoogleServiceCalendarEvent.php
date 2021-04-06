@@ -13,15 +13,17 @@ class GoogleServiceCalendarEvent
     public $start;
     public $end;
     public $attendees;
+    public $colorId;
 
     public function __construct(Google_Service_Calendar_Event $google_Service_Calendar_Event)
     {
-        $this->id = $google_Service_Calendar_Event->id;
-        $this->summary = $google_Service_Calendar_Event->summary;
-        $this->description = $google_Service_Calendar_Event->description;
-        $this->start = $google_Service_Calendar_Event->start;
-        $this->end = $google_Service_Calendar_Event->end;
-        $this->attendees = $google_Service_Calendar_Event->attendees;
+        $this->id = $google_Service_Calendar_Event->getId();
+        $this->summary = $google_Service_Calendar_Event->getSummary();
+        $this->description = $google_Service_Calendar_Event->getDescription();
+        $this->start = $google_Service_Calendar_Event->getStart();
+        $this->end = $google_Service_Calendar_Event->getEnd();
+        $this->attendees = $google_Service_Calendar_Event->getAttendees();
+        $this->colorId = $google_Service_Calendar_Event->getColorId();
     }
 
     public function tags()

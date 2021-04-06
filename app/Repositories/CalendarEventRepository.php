@@ -41,6 +41,22 @@ class CalendarEventRepository
         return new Google_Service_Calendar($this->client);
     }
 
+    public function listColors()
+    {
+        // if calendarService is null => getCalendarService()
+        $this->calendarService = $this->calendarService ?? $this->getCalendarService();
+
+        $colors = null;
+
+        try {
+            $colors = $this->calendarService->colors->get();
+        } catch (Exception $e) {
+            throw new Exception('No color found');
+        }
+
+        return $colors;
+    }
+
     /**
      * Get event by id
      */
@@ -123,6 +139,7 @@ class CalendarEventRepository
                 'dateTime' => $this->convertTime($request->input('end'))
             ],
             'attendees' => $this->getAttendees($request->input('attendees')),
+            'colorId' => $request->input('colorId'),
         ]);
 
         $event = $this->calendarService->events->insert($this->calendarId, $event);
@@ -151,6 +168,7 @@ class CalendarEventRepository
                     'dateTime' => $this->convertTime($request->input('end'))
                 ],
                 'attendees' => $this->getAttendees($request->input('attendees')),
+                'colorId' => $request->input('colorId'),
             ]);
 
             $event = $this->calendarService->events->update($this->calendarId, $eventId, $event);
@@ -180,15 +198,17 @@ class CalendarEventRepository
     /**
      * Create attendees array from emails array
      */
-    private function getAttendees(array $emails)
+    private function getAttendees(array $emails = null)
     {
         $attendees = [];
 
-        foreach ($emails as $email) {
-            if ($email) {
-                $attendees[] = [
-                    'email' => $email
-                ];
+        if ($emails) {
+            foreach ($emails as $email) {
+                if ($email) {
+                    $attendees[] = [
+                        'email' => $email
+                    ];
+                }
             }
         }
 
