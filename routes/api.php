@@ -17,6 +17,9 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // });
 
+Route::get('auth/google/url', 'Api\Auth\GoogleController@loginUrl')->name('login');
+Route::get('auth/google/callback', 'Api\Auth\GoogleController@loginCallback');
+
 Route::group(['middleware' => ['google.auth']], function () {
     Route::post('logout', 'Api\Auth\GoogleController@logout');
     Route::post('me', 'Api\Auth\GoogleController@me');
@@ -30,11 +33,7 @@ Route::prefix('calendar')->middleware('google.auth')->group(function () {
     Route::delete('/{id}', 'Api\CalendarController@deleteEvent');
 });
 
-Route::prefix('calendar-colors')->middleware('google.auth')->group(
-    function () {
-        Route::get('/', 'Api\CalendarController@listColors');
-    }
-);
+Route::get('/calendar-colors', 'Api\ListColors');
 
 
 Route::prefix('diary')->middleware('google.auth')->group(function () {
@@ -52,10 +51,3 @@ Route::prefix('tag')->middleware('google.auth')->group(function () {
     Route::put('/{id}', 'Api\TagController@update');
     Route::delete('/{id}', 'Api\TagController@destroy');
 });
-
-
-Route::post('/diray/addtags', 'Api\DiaryController@addTags');
-
-
-Route::get('auth/google/url', 'Api\Auth\GoogleController@loginUrl')->name('login');
-Route::get('auth/google/callback', 'Api\Auth\GoogleController@loginCallback');
