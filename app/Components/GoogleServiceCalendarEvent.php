@@ -24,7 +24,7 @@ class GoogleServiceCalendarEvent
         $this->start = $google_Service_Calendar_Event->getStart();
         $this->end = $google_Service_Calendar_Event->getEnd();
         $this->attendees = $google_Service_Calendar_Event->getAttendees();
-        $this->colorId = $google_Service_Calendar_Event->getColorId();
+        $this->colorId = $google_Service_Calendar_Event->getColorId() ?? 7;
         $this->backgroundColor = $this->color($google_Service_Calendar_Event->getColorId());
     }
 
