@@ -70,7 +70,7 @@ class GoogleController extends Controller
                 $user->name = $googleUser->getName();
                 $user->avatar = $googleUser->getAvatar();
             }
-            $user->remember_token = $googleUser->refreshToken;
+
             $user->save();
         });
 

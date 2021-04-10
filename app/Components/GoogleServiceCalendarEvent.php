@@ -13,7 +13,7 @@ class GoogleServiceCalendarEvent
     public $start;
     public $end;
     public $attendees;
-    public $colorId;
+    public $color;
 
     public function __construct(Google_Service_Calendar_Event $google_Service_Calendar_Event)
     {
@@ -23,11 +23,16 @@ class GoogleServiceCalendarEvent
         $this->start = $google_Service_Calendar_Event->getStart();
         $this->end = $google_Service_Calendar_Event->getEnd();
         $this->attendees = $google_Service_Calendar_Event->getAttendees();
-        $this->colorId = $google_Service_Calendar_Event->getColorId();
+        $this->color = $this->color($google_Service_Calendar_Event->getColorId());
     }
 
     public function tags()
     {
         return DB::select('SELECT tags.* FROM tags JOIN event_tags ON event_tags.tag_id = tags.id WHERE event_id = ?', [$this->id]);
+    }
+
+    public function color($colorId)
+    {
+        return DB::table('colors')->where('colorId', '=', $colorId)->first();
     }
 }
