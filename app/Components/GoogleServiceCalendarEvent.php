@@ -13,7 +13,8 @@ class GoogleServiceCalendarEvent
     public $start;
     public $end;
     public $attendees;
-    public $color;
+    public $colorId;
+    public $backgroundColor;
 
     public function __construct(Google_Service_Calendar_Event $google_Service_Calendar_Event)
     {
@@ -23,7 +24,8 @@ class GoogleServiceCalendarEvent
         $this->start = $google_Service_Calendar_Event->getStart();
         $this->end = $google_Service_Calendar_Event->getEnd();
         $this->attendees = $google_Service_Calendar_Event->getAttendees();
-        $this->color = $this->color($google_Service_Calendar_Event->getColorId());
+        $this->colorId = $google_Service_Calendar_Event->getColorId();
+        $this->backgroundColor = $this->color($google_Service_Calendar_Event->getColorId());
     }
 
     public function tags()
@@ -33,6 +35,12 @@ class GoogleServiceCalendarEvent
 
     public function color($colorId)
     {
-        return DB::table('colors')->where('colorId', '=', $colorId)->first();
+        $color = DB::table('colors')->where('colorId', '=', $colorId)->first();
+
+        if (!$color) {
+            $color = DB::table('colors')->where('name', '=', 'Peacock')->first();
+        }
+
+        return $color->background;
     }
 }

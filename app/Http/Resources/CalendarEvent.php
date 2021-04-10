@@ -24,7 +24,8 @@ class CalendarEvent extends JsonResource
             'end' => $this->end->dateTime,
             'attendees' => CalendarEventAttendee::collection($this->attendees),
             'tags' => TagResource::collection($this->tags()),
-            'color' => $this->color,
+            'colorId' => $this->colorId,
+            'backgroundColor' => $this->backgroundColor,
         ];
     }
 }
