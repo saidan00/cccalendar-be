@@ -23,7 +23,7 @@ class CalendarEventRepository
         $this->token = $request->header('Authorization');
 
         $this->calendarService = null;
-        $this->timezone = 'Asia/Ho_Chi_Minh';
+        $this->timezone = config('timezone', 'Asia/Ho_Chi_Minh');
         $this->calendarId = 'primary';
     }
 

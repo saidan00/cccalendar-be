@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Helpers\ResponseHelper;
 use App\Http\Resources\Diary as DiaryResource;
-use App\Http\Traits\AddTagsToModelTrait;
 use App\Repositories\DiaryRepository;
 use App\Repositories\TagRepository;
 use Illuminate\Http\Request;
@@ -14,7 +13,6 @@ use Illuminate\Support\Facades\Validator;
 
 class DiaryController extends ApiWithAuthController
 {
-    use AddTagsToModelTrait;
 
     private TagRepository $tagRepository;
 
@@ -98,15 +96,24 @@ class DiaryController extends ApiWithAuthController
             $diary = null;
 
             // dùng DB::transaction sẽ tự động rollback khi xảy ra lỗi
-            DB::transaction(function () use ($data, &$diary, $createOrUpdate, $id) {
+            DB::transaction(function () use ($data, &$diary, $createOrUpdate, $id, $request) {
                 // thêm các tag vào database (nếu trùng thì bỏ qua)
-                $this->tagRepository->insertNewTags($data['tags'], $data['user_id']);
+                if (isset($data['tags'])) {
+                    $this->tagRepository->insertNewTags($data['tags'], $data['user_id']);
+                }
 
                 // tạo mới hoặc update diary
                 switch ($createOrUpdate) {
                     case 'create':
                         // tạo diary
                         $diary = $this->repository->create($data);
+
+                        // thêm file
+                        if (isset($data['images'])) {
+                            $images = $request->allFiles('images');
+                            $this->repository->uploadMultiFiles($images, $data['user_id'], $diary->id);
+                        }
+
                         break;
                     case 'update':
                         // update diary
@@ -116,11 +123,13 @@ class DiaryController extends ApiWithAuthController
                         break;
                 }
 
-                // lấy các tag vừa thêm
-                $tags = $this->tagRepository->findByTagsName($data['tags'], $data['user_id']);
+                if (isset($data['tags'])) {
+                    // lấy các tag vừa thêm
+                    $tags = $this->tagRepository->findByTagsName($data['tags'], $data['user_id']);
 
-                // thêm các tag mới vào diary
-                $this->repository->addTags($diary->id, $tags, $data['user_id']);
+                    // thêm các tag mới vào diary
+                    $this->repository->addTags($diary->id, $tags, $data['user_id']);
+                }
             });
 
             return new DiaryResource($diary);
@@ -132,7 +141,9 @@ class DiaryController extends ApiWithAuthController
         return [
             'title' => 'required|max:255',
             'tags' => 'array',
-            'tags.*' => 'required|string'
+            'tags.*' => 'required|string',
+            'images' => 'array',
+            'images.*' => 'required|mimes:jpg,jpeg,png|max:2048',
         ];
     }
 
@@ -144,6 +155,10 @@ class DiaryController extends ApiWithAuthController
             'tags.array' => trans('The tags must be type of array'),
             'tags.*.required' => trans('The tag name is required'),
             'tags.*.string' => trans('The tag must be type of string'),
+            'images.array' => trans('The images must be type of array'),
+            'images.*.required' => trans('The image is required'),
+            'images.*.mimes' => trans('The image must be type of jpg, jpeg, png'),
+            'images.*.max' => trans('The size of image must be maximum 2 MB (2048 KB)'),
         ];
     }
 }
