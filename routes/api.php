@@ -22,7 +22,6 @@ Route::get('auth/google/callback', 'Api\Auth\GoogleController@loginCallback');
 
 Route::group(['middleware' => ['google.auth']], function () {
     Route::post('logout', 'Api\Auth\GoogleController@logout');
-    Route::post('me', 'Api\Auth\GoogleController@me');
 });
 
 Route::prefix('calendar')->middleware('google.auth')->group(function () {

@@ -85,18 +85,6 @@ class GoogleController extends Controller
     }
 
     /**
-     * Get the authenticated User.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function me(Request $request)
-    {
-        $googleUser = $this->driver->userFromToken($request->header('Authorization'));
-        $user = User::where('email', $googleUser->getEmail())->first();
-        return new UserResource($user);
-    }
-
-    /**
      * Get the token array structure.
      *
      * @param  string $token
