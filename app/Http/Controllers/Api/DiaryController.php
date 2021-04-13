@@ -151,8 +151,13 @@ class DiaryController extends ApiWithAuthController
         $validator = Validator::make(
             $data,
             [
-                'image' => 'required|mimes:jpg,jpeg,png|max:3000',
+                'image' => 'required|mimes:jpg,jpeg,png|max:2048',
             ],
+            [
+                'image.required' => trans('The image is required'),
+                'image.mimes' => trans('The image must be type of jpg, jpeg, png'),
+                'image.max' => trans('The size of image must be maximum 2 MB (2048 KB)'),
+            ]
         );
 
         if ($validator->fails()) {
