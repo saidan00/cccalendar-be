@@ -110,8 +110,8 @@ class DiaryController extends ApiWithAuthController
 
                         // thêm file
                         if (isset($data['images'])) {
-                            $images = $request->allFiles('images');
-                            $this->repository->uploadMultiFiles($images, $data['user_id'], $diary->id);
+                            $images = $data['images'];
+                            $this->repository->uploadMultipleFiles($images, $data['user_id'], $diary->id);
                         }
 
                         break;
