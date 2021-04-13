@@ -17,7 +17,7 @@ class DiaryImage extends JsonResource
         // return parent::toArray($request);
         return [
             'path' => asset($this->path),
-            'alt_text' => $this->alt_text,
+            'name' => $this->name,
         ];
     }
 }

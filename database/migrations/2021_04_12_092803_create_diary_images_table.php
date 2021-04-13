@@ -21,7 +21,7 @@ class CreateDiaryImagesTable extends Migration
             $table->foreign('user_id')->references('id')->on('users');
 
             $table->string('path');
-            $table->string('alt_text');
+            $table->string('name');
 
             $table->timestamps();
         });

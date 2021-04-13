@@ -43,6 +43,7 @@ Route::prefix('diary')->middleware('google.auth')->group(function () {
     Route::delete('/{id}', 'Api\DiaryController@destroy');
 
     Route::post('/{id}/addfile', 'Api\DiaryController@addFileToDiary');
+    Route::post('/{id}/deletefile', 'Api\DiaryController@removeFileFromDiary');
 });
 
 Route::prefix('tag')->middleware('google.auth')->group(function () {

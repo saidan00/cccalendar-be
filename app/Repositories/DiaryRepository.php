@@ -7,6 +7,7 @@ use App\Repositories\EloquentWithAuthRepository;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class DiaryRepository extends EloquentWithAuthRepository
@@ -80,7 +81,7 @@ class DiaryRepository extends EloquentWithAuthRepository
 
         // tên file = ngày giờ + user id + diary id + chuỗi ngẫu nhiên
         $fileAltText = Carbon::now(config('timezone', 'Asia/Ho_Chi_Minh'))
-            ->format('YmdHis') . '_' . $userId . '_' . $diaryId . '_' . $randStr;
+            ->format('YmdHisu') . '_' . $userId . '_' . $diaryId . '_' . $randStr;
 
         // file extension
         $extension = $file->extension();
@@ -88,14 +89,19 @@ class DiaryRepository extends EloquentWithAuthRepository
         // file name = alt_text + extension
         $fileName = $fileAltText . '.' . $extension;
 
-        $uploadSuccess = $file->storeAs($this::FILE_PUBLIC_PATH, $fileName);
+        // tạo thư mục lưu trữ images/userId/diaryId/
+        $subDirectory = $userId . '/' . $diaryId;
+        $directory = $this::FILE_PUBLIC_PATH . '/' . $subDirectory;
+        Storage::makeDirectory($directory);
+
+        $uploadSuccess = $file->storeAs($directory, $fileName);
 
         if ($uploadSuccess) {
             $diaryImage = [
                 'diary_id' => $diaryId,
                 'user_id' => $userId,
-                'path' => $this::FILE_STORAGE_PATH . '/' . $fileName,
-                'alt_text' => $randStr . '.' . $extension,
+                'path' => $this::FILE_STORAGE_PATH . '/' . $subDirectory . '/' . $fileName,
+                'name' => $fileName,
             ];
 
             $this->storeFileInfo($diaryImage);
@@ -107,6 +113,19 @@ class DiaryRepository extends EloquentWithAuthRepository
     public function storeFileInfo($diaryImage)
     {
         return DB::table('diary_images')->insert($diaryImage);
+    }
+
+    public function deleteSingleFile($fileName, $userId, $id)
+    {
+        $fileDeleted = Storage::delete($this::FILE_STORAGE_PATH . '/' . $userId . '/' . $fileName);
+
+        if ($fileDeleted) {
+            DB::table('diary_images')->where([
+                ['diary_id', '=', $id],
+                ['user_id', '=', $userId],
+                ['name', '=', $fileName],
+            ])->delete();
+        }
     }
 
     private function generateRandomString()

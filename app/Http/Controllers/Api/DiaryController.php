@@ -109,7 +109,7 @@ class DiaryController extends ApiWithAuthController
                         $diary = $this->repository->create($data);
 
                         // thêm file
-                        if (isset($data['images'])) {
+                        if (isset($data['images']) && $diary) {
                             $images = $data['images'];
                             $this->repository->uploadMultipleFiles($images, $data['user_id'], $diary->id);
                         }
@@ -123,6 +123,7 @@ class DiaryController extends ApiWithAuthController
                             // xóa tất cả tag cũ của diary (nếu có)
                             $this->tagRepository->deleteReferenceByDiaryId($diary->id);
                         }
+
                         break;
                 }
 
@@ -163,15 +164,45 @@ class DiaryController extends ApiWithAuthController
         if ($validator->fails()) {
             return response()->json($validator->messages(), Response::HTTP_BAD_REQUEST);
         } else {
-
             // lấy user từ middleware VerifyGoogleToken
             $user = $request->get('user');
             $data['user_id'] = $user->id;
             $diary = $this->repository->find($id, $data['user_id']);
 
             if ($diary && isset($data['image'])) {
-                DB::transaction(function () use ($data, &$diary, $id) {
+                DB::transaction(function () use ($data, $id) {
                     $this->repository->uploadSingleFile($data['image'], $data['user_id'], $id);
+                });
+
+                return new DiaryResource($diary);
+            } else {
+                return ResponseHelper::response(trans('Not found'), Response::HTTP_NOT_FOUND);
+            }
+        }
+    }
+
+    public function removeFileFromDiary(Request $request, $id)
+    {
+        // except user_id để tránh việc client gửi request kèm user_id
+        $data = $request->except(['user_id']);
+
+        $validator = Validator::make(
+            $data,
+            ['file_name' => 'required|string'],
+            ['file_name.required' => trans('The file name is required')]
+        );
+
+        if ($validator->fails()) {
+            return response()->json($validator->messages(), Response::HTTP_BAD_REQUEST);
+        } else {
+            // lấy user từ middleware VerifyGoogleToken
+            $user = $request->get('user');
+            $data['user_id'] = $user->id;
+            $diary = $this->repository->find($id, $data['user_id']);
+
+            if ($diary) {
+                DB::transaction(function () use ($data, $id) {
+                    $this->repository->deleteSingleFile($data['file_name'], $data['user_id'], $id);
                 });
 
                 return new DiaryResource($diary);
