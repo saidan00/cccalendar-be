@@ -11,10 +11,7 @@ use Illuminate\Support\Facades\Validator;
 
 abstract class ApiWithAuthController extends Controller
 {
-    /**
-     * @var App\Repositories\EloquentWithAuthRepository
-     */
-    protected $repository;
+    protected EloquentWithAuthRepository $repository;
 
     /**
      * @var string

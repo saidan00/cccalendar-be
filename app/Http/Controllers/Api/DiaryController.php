@@ -96,7 +96,7 @@ class DiaryController extends ApiWithAuthController
             $diary = null;
 
             // dùng DB::transaction sẽ tự động rollback khi xảy ra lỗi
-            DB::transaction(function () use ($data, &$diary, $createOrUpdate, $id, $request) {
+            DB::transaction(function () use ($data, &$diary, $createOrUpdate, $id) {
                 // thêm các tag vào database (nếu trùng thì bỏ qua)
                 if (isset($data['tags'])) {
                     $this->tagRepository->insertNewTags($data['tags'], $data['user_id']);
@@ -118,12 +118,15 @@ class DiaryController extends ApiWithAuthController
                     case 'update':
                         // update diary
                         $diary = $this->repository->update($id, $data, $data['user_id']);
-                        // xóa tất cả tag cũ của diary (nếu có)
-                        $this->tagRepository->deleteReferenceByDiaryId($diary->id);
+
+                        if ($diary) {
+                            // xóa tất cả tag cũ của diary (nếu có)
+                            $this->tagRepository->deleteReferenceByDiaryId($diary->id);
+                        }
                         break;
                 }
 
-                if (isset($data['tags'])) {
+                if (isset($data['tags']) && $diary) {
                     // lấy các tag vừa thêm
                     $tags = $this->tagRepository->findByTagsName($data['tags'], $data['user_id']);
 
@@ -132,7 +135,44 @@ class DiaryController extends ApiWithAuthController
                 }
             });
 
-            return new DiaryResource($diary);
+            if ($diary) {
+                return new DiaryResource($diary);
+            } else {
+                return ResponseHelper::response(trans('Not found'), Response::HTTP_NOT_FOUND);
+            }
+        }
+    }
+
+    public function addFileToDiary(Request $request, $id)
+    {
+        // except user_id để tránh việc client gửi request kèm user_id
+        $data = $request->except(['user_id']);
+
+        $validator = Validator::make(
+            $data,
+            [
+                'image' => 'required|mimes:jpg,jpeg,png|max:3000',
+            ],
+        );
+
+        if ($validator->fails()) {
+            return response()->json($validator->messages(), Response::HTTP_BAD_REQUEST);
+        } else {
+
+            // lấy user từ middleware VerifyGoogleToken
+            $user = $request->get('user');
+            $data['user_id'] = $user->id;
+            $diary = $this->repository->find($id, $data['user_id']);
+
+            if ($diary && isset($data['image'])) {
+                DB::transaction(function () use ($data, &$diary, $id) {
+                    $this->repository->uploadSingleFile($data['image'], $data['user_id'], $id);
+                });
+
+                return new DiaryResource($diary);
+            } else {
+                return ResponseHelper::response(trans('Not found'), Response::HTTP_NOT_FOUND);
+            }
         }
     }
 

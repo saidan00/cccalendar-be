@@ -61,14 +61,11 @@ class DiaryRepository extends EloquentWithAuthRepository
         // if has file(s)
         if (count($files) !== 0) {
             foreach ($files as $file) {
-                $diaryImage = $this->uploadSingleFile($file, $userId, $diaryId);
-
-                if ($diaryImage) {
-                    DB::table('diary_images')->insert($diaryImage);
-                }
+                $this->uploadSingleFile($file, $userId, $diaryId);
             }
-            return;
         }
+
+        return;
     }
 
     /**
@@ -76,14 +73,19 @@ class DiaryRepository extends EloquentWithAuthRepository
      */
     public function uploadSingleFile(UploadedFile $file, int $userId, int $diaryId)
     {
-        $diaryImage = [];
+        $diaryImage = false;
 
         // tạo chuỗi ngẫu nhiên có độ dài = 6
         $randStr = $this->generateRandomString();
+
         // tên file = ngày giờ + user id + diary id + chuỗi ngẫu nhiên
         $fileAltText = Carbon::now(config('timezone', 'Asia/Ho_Chi_Minh'))
             ->format('YmdHis') . '_' . $userId . '_' . $diaryId . '_' . $randStr;
+
+        // file extension
         $extension = $file->extension();
+
+        // file name = alt_text + extension
         $fileName = $fileAltText . '.' . $extension;
 
         $uploadSuccess = $file->storeAs($this::FILE_PUBLIC_PATH, $fileName);
@@ -93,11 +95,18 @@ class DiaryRepository extends EloquentWithAuthRepository
                 'diary_id' => $diaryId,
                 'user_id' => $userId,
                 'path' => $this::FILE_STORAGE_PATH . '/' . $fileName,
-                'alt_text' => $randStr,
+                'alt_text' => $randStr . '.' . $extension,
             ];
+
+            $this->storeFileInfo($diaryImage);
         }
 
         return $diaryImage;
+    }
+
+    public function storeFileInfo($diaryImage)
+    {
+        return DB::table('diary_images')->insert($diaryImage);
     }
 
     private function generateRandomString()
