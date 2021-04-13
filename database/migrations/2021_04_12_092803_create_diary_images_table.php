@@ -17,6 +17,9 @@ class CreateDiaryImagesTable extends Migration
             $table->foreignId('diary_id');
             $table->foreign('diary_id')->references('id')->on('diaries');
 
+            $table->foreignId('user_id');
+            $table->foreign('user_id')->references('id')->on('users');
+
             $table->string('path');
             $table->string('alt_text');
 
