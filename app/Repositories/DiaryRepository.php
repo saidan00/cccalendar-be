@@ -11,7 +11,8 @@ use Illuminate\Support\Str;
 
 class DiaryRepository extends EloquentWithAuthRepository
 {
-    const FILE_PATH = 'public/images';
+    const FILE_PUBLIC_PATH = 'public/images';
+    const FILE_STORAGE_PATH = 'storage/images';
 
     /**
      * get model
@@ -85,13 +86,13 @@ class DiaryRepository extends EloquentWithAuthRepository
         $extension = $file->extension();
         $fileName = $fileAltText . '.' . $extension;
 
-        $uploadSuccess = $file->storeAs($this::FILE_PATH, $fileName);
+        $uploadSuccess = $file->storeAs($this::FILE_PUBLIC_PATH, $fileName);
 
         if ($uploadSuccess) {
             $diaryImage = [
                 'diary_id' => $diaryId,
                 'user_id' => $userId,
-                'path' => $uploadSuccess,
+                'path' => $this::FILE_STORAGE_PATH . '/' . $fileName,
                 'alt_text' => $randStr,
             ];
         }
