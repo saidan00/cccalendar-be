@@ -60,17 +60,23 @@ class DiaryRepository extends EloquentWithAuthRepository
         // if has file(s)
         if (count($files) !== 0) {
             foreach ($files as $file) {
-                $uploadSuccess = $this->uploadSingleFile($file, $userId, $diaryId);
+                $diaryImage = $this->uploadSingleFile($file, $userId, $diaryId);
+
+                if ($diaryImage) {
+                    DB::table('diary_images')->insert($diaryImage);
+                }
             }
             return;
         }
     }
 
     /**
-     * @return string|false
+     * @return array|false
      */
     public function uploadSingleFile(UploadedFile $file, int $userId, int $diaryId)
     {
+        $diaryImage = [];
+
         // tạo chuỗi ngẫu nhiên có độ dài = 6
         $randStr = $this->generateRandomString();
         // tên file = ngày giờ + user id + diary id + chuỗi ngẫu nhiên
@@ -81,7 +87,16 @@ class DiaryRepository extends EloquentWithAuthRepository
 
         $uploadSuccess = $file->storeAs($this::FILE_PATH, $fileName);
 
-        return $uploadSuccess;
+        if ($uploadSuccess) {
+            $diaryImage = [
+                'diary_id' => $diaryId,
+                'user_id' => $userId,
+                'path' => $uploadSuccess,
+                'alt_text' => $randStr,
+            ];
+        }
+
+        return $diaryImage;
     }
 
     private function generateRandomString()

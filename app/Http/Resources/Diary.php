@@ -2,9 +2,9 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\DiaryImage as DiaryImageResource;
 use App\Http\Resources\Tag as TagResource;
 use Illuminate\Http\Resources\Json\JsonResource;
-
 
 class Diary extends JsonResource
 {
@@ -22,6 +22,7 @@ class Diary extends JsonResource
             'title' => $this->title,
             'content' => $this->content,
             'tags' => TagResource::collection($this->tags),
+            'images' => DiaryImageResource::collection($this->images),
         ];
     }
 }

@@ -24,4 +24,9 @@ class Diary extends Model
     {
         return $this->hasManyThrough(Tag::class, DiaryTag::class, 'diary_id', 'id', 'id', 'tag_id');
     }
+
+    public function images()
+    {
+        return $this->hasMany(DiaryImage::class, 'diary_id', 'id');
+    }
 }
