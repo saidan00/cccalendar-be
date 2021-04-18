@@ -8,7 +8,6 @@ use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class DiaryRepository extends EloquentWithAuthRepository
 {
@@ -22,6 +21,69 @@ class DiaryRepository extends EloquentWithAuthRepository
     public function getModel()
     {
         return Diary::class;
+    }
+
+    public function filter($params, $user_id = null)
+    {
+        $diaries = $this->_model->where('user_id', $user_id);
+        $itemsPerPage = 20;
+
+        // lọc theo title
+        if (isset($params['title'])) {
+            $diaries = $diaries->where('title', 'LIKE', '%' . $params['title'] . '%');
+        }
+
+        // lọc theo content
+        if (isset($params['content'])) {
+            $diaries = $diaries->where('content', 'LIKE', '%' . $params['content'] . '%');
+        }
+
+        // lọc theo tag
+        if (isset($params['tags'])) {
+            $diaries = $diaries->whereHas('tags', function ($query) use ($params) {
+                return $query->whereIn('name', $params['tags']);
+            });
+        }
+
+        // lọc theo ngày
+        if (isset($params['fromDate'])) {
+            $diaries = $diaries->whereDate('created_at', '>=', $params['fromDate']);
+        }
+
+        if (isset($params['toDate'])) {
+            $diaries = $diaries->whereDate('created_at', '<=', $params['toDate']);
+        }
+
+        // sắp xếp
+        if (isset($params['sort'])) {
+            switch ($params['sort']) {
+                case 'a-to-z':
+                    $diaries = $diaries->orderBy('title');
+                    break;
+                case 'z-to-a':
+                    $diaries = $diaries->orderBy('title', 'desc');
+                    break;
+                case 'newest':
+                    $diaries = $diaries->orderBy('created_at');
+                    break;
+                case 'oldest':
+                    $diaries = $diaries->orderBy('created_at', 'desc');
+                    break;
+                default:
+                    $diaries = $diaries->orderBy('created_at');
+                    break;
+            }
+        }
+
+        // phân trang
+        if (isset($params['itemsPerPage'])) {
+            $itemsPerPage = $params['itemsPerPage'];
+        }
+        $diaries = $diaries->paginate($itemsPerPage);
+
+        $diaries->appends($params)->links();
+
+        return $diaries;
     }
 
     public function addTags($id, $tags, $user_id)

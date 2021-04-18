@@ -13,6 +13,7 @@ class Diary extends Model
         'title',
         'content',
         'user_id',
+        'created_at',
     ];
 
     public function user()

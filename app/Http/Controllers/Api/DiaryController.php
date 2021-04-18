@@ -6,6 +6,7 @@ use App\Helpers\ResponseHelper;
 use App\Http\Resources\Diary as DiaryResource;
 use App\Repositories\DiaryRepository;
 use App\Repositories\TagRepository;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -25,6 +26,30 @@ class DiaryController extends ApiWithAuthController
     public function getResource()
     {
         return DiaryResource::class;
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Request $request)
+    {
+        $user = $request->get('user');
+        $params = $request->only(['title', 'content', 'fromDate', 'toDate', 'tags', 'sort', 'itemsPerPage', 'page']);
+
+        $validator = Validator::make(
+            $params,
+            $this->getFilterValidationRules()
+        );
+
+        if ($validator->fails()) {
+            return response()->json($validator->messages(), Response::HTTP_BAD_REQUEST);
+        } else {
+            $entities = $this->repository->filter($params, $user->id);
+
+            return $this->resource::collection($entities);
+        }
     }
 
     /**
@@ -93,6 +118,12 @@ class DiaryController extends ApiWithAuthController
             // lấy user từ middleware VerifyGoogleToken
             $user = $request->get('user');
             $data['user_id'] = $user->id;
+
+            // nếu request có biến date
+            if (isset($data['date'])) {
+                $data['created_at'] = $data['date'] . ' ' . Carbon::now(config('timezone', 'Asia/Ho_Chi_Minh'))->format('H:i:s');
+            }
+
             $diary = null;
 
             // dùng DB::transaction sẽ tự động rollback khi xảy ra lỗi
@@ -220,6 +251,21 @@ class DiaryController extends ApiWithAuthController
             'tags.*' => 'required|string',
             'images' => 'array',
             'images.*' => 'required|mimes:jpg,jpeg,png|max:2048',
+            'date' => 'date_format:Y-m-d',
+        ];
+    }
+
+    protected function getFilterValidationRules()
+    {
+        return [
+            'title' => 'string|max:100',
+            'content' => 'string|max:100',
+            'tags' => 'array',
+            'tags.*' => 'string|max:100',
+            'fromDate' => 'date_format:Y-m-d',
+            'toDate' => 'date_format:Y-m-d',
+            'itemsPerPage' => 'numeric',
+            'sort' => 'in:a-to-z,z-to-a,newest,oldest',
         ];
     }
 
@@ -235,6 +281,7 @@ class DiaryController extends ApiWithAuthController
             'images.*.required' => trans('The image is required'),
             'images.*.mimes' => trans('The image must be type of jpg, jpeg, png'),
             'images.*.max' => trans('The size of image must be maximum 2 MB (2048 KB)'),
+            'date.date_format' => trans('The date field must be in format Y-m-d'),
         ];
     }
 }
