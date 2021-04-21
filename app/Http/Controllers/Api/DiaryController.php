@@ -258,7 +258,7 @@ class DiaryController extends ApiWithAuthController
     protected function getFilterValidationRules()
     {
         return [
-            'title' => 'string|max:100',
+            'title' => 'max:100',
             'content' => 'string|max:100',
             'tags' => 'array',
             'tags.*' => 'string|max:100',
