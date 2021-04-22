@@ -26,7 +26,7 @@ class DiaryRepository extends EloquentWithAuthRepository
     public function filter($params, $user_id = null)
     {
         $diaries = $this->_model->where('user_id', $user_id);
-        $itemsPerPage = 20;
+        $itemsPerPage = 10;
 
         // lọc theo title
         if (isset($params['title'])) {
@@ -64,10 +64,10 @@ class DiaryRepository extends EloquentWithAuthRepository
                     $diaries = $diaries->orderBy('title', 'desc');
                     break;
                 case 'newest':
-                    $diaries = $diaries->orderBy('created_at');
+                    $diaries = $diaries->orderBy('created_at', 'desc');
                     break;
                 case 'oldest':
-                    $diaries = $diaries->orderBy('created_at', 'desc');
+                    $diaries = $diaries->orderBy('created_at');
                     break;
                 default:
                     $diaries = $diaries->orderBy('created_at');
