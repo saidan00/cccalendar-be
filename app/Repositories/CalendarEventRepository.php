@@ -118,7 +118,27 @@ class CalendarEventRepository
         // lấy danh sách events theo điều kiện
         $events = $this->calendarService->events->listEvents($this->calendarId, $optParams)->getItems();
 
-        return $this->mapToGoogleServiceCalendarEvents($events);
+        $events = $this->mapToGoogleServiceCalendarEvents($events);
+
+        // filter by tags
+        if ($request->filled('tags')) {
+            $tags = $request->input('tags');
+            foreach ($events as $key => $event) {
+                $eventTags = [];
+                foreach ($event->tags() as $eventTag) {
+                    $eventTags[] = $eventTag->name;
+                }
+
+                foreach ($tags as $tag) {
+                    if (!in_array($tag, $eventTags)) {
+                        unset($events[$key]);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $events;
     }
 
     /**
