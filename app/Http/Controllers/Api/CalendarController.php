@@ -241,6 +241,8 @@ class CalendarController extends Controller
         ];
 
         return [
+            'tags' => 'array',
+            'tags.*' => 'string|max:100',
             'start' => new MultipleDateFormat($formats),
             'end' => new MultipleDateFormat($formats),
         ];
