@@ -70,9 +70,11 @@ class DiaryRepository extends EloquentWithAuthRepository
                     $diaries = $diaries->orderBy('created_at');
                     break;
                 default:
-                    $diaries = $diaries->orderBy('created_at');
+                    $diaries = $diaries->orderBy('created_at', 'desc');
                     break;
             }
+        } else {
+            $diaries = $diaries->orderBy('created_at', 'desc');
         }
 
         // phân trang
