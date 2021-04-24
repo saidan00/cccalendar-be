@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Api\ApiWithAuthController;
-use App\Http\Resources\Tag as TagResource;
+use App\Http\Resources\TagFull as TagResource;
 use App\Repositories\TagRepository;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
