@@ -16,67 +16,67 @@ class ColorSeeder extends Seeder
             [
                 "colorId" => 1,
                 "name" => "Lavender",
-                "background" => "#a4bdfc",
+                "background" => "#7986cb",
                 "foreground" => "#1d1d1d"
             ],
             [
                 "colorId" => 2,
                 "name" => "Sage",
-                "background" => "#7ae7bf",
+                "background" => "#33b679",
                 "foreground" => "#1d1d1d"
             ],
             [
                 "colorId" => 3,
                 "name" => "Grape",
-                "background" => "#dbadff",
+                "background" => "#8e24aa",
                 "foreground" => "#1d1d1d"
             ],
             [
                 "colorId" => 4,
                 "name" => "Flamingo",
-                "background" => "#ff887c",
+                "background" => "#e67c73",
                 "foreground" => "#1d1d1d"
             ],
             [
                 "colorId" => 5,
                 "name" => "Banana",
-                "background" => "#fbd75b",
+                "background" => "#f6c026",
                 "foreground" => "#1d1d1d"
             ],
             [
                 "colorId" => 6,
                 "name" => "Tangerine",
-                "background" => "#ffb878",
+                "background" => "#f5511d",
                 "foreground" => "#1d1d1d"
             ],
             [
                 "colorId" => 7,
                 "name" => "Peacock",
-                "background" => "#46d6db",
+                "background" => "#039be5",
                 "foreground" => "#1d1d1d"
             ],
             [
                 "colorId" => 8,
                 "name" => "Graphite",
-                "background" => "#e1e1e1",
+                "background" => "#616161",
                 "foreground" => "#1d1d1d"
             ],
             [
                 "colorId" => 9,
                 "name" => "Blueberry",
-                "background" => "#5484ed",
+                "background" => "#3f51b5",
                 "foreground" => "#1d1d1d"
             ],
             [
                 "colorId" => 10,
                 "name" => "Basil",
-                "background" => "#51b749",
+                "background" => "#0b8043",
                 "foreground" => "#1d1d1d"
             ],
             [
                 "colorId" => 11,
                 "name" => "Tomato",
-                "background" => "#dc2127",
+                "background" => "#d60000",
                 "foreground" => "#1d1d1d"
             ]
         ];
