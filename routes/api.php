@@ -20,9 +20,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('auth/google/url', 'Api\Auth\GoogleController@loginUrl')->name('login');
 Route::get('auth/google/callback', 'Api\Auth\GoogleController@loginCallback');
 
-Route::group(['middleware' => ['google.auth']], function () {
-    Route::post('logout', 'Api\Auth\GoogleController@logout');
-});
+// Route::group(['middleware' => ['google.auth']], function () {
+//     Route::post('logout', 'Api\Auth\GoogleController@logout');
+// });
 
 Route::prefix('calendar')->middleware('google.auth')->group(function () {
     Route::get('/', 'Api\CalendarController@index');
@@ -32,7 +32,7 @@ Route::prefix('calendar')->middleware('google.auth')->group(function () {
     Route::delete('/{id}', 'Api\CalendarController@deleteEvent');
 });
 
-Route::get('/calendar-colors', 'Api\ListColors');
+// Route::get('/calendar-colors', 'Api\ListColors');
 
 
 Route::prefix('diary')->middleware('google.auth')->group(function () {
@@ -42,8 +42,8 @@ Route::prefix('diary')->middleware('google.auth')->group(function () {
     Route::put('/{id}', 'Api\DiaryController@update');
     Route::delete('/{id}', 'Api\DiaryController@destroy');
 
-    Route::post('/{id}/addfile', 'Api\DiaryController@addFileToDiary');
-    Route::post('/{id}/deletefile', 'Api\DiaryController@removeFileFromDiary');
+    // Route::post('/{id}/addfile', 'Api\DiaryController@addFileToDiary');
+    // Route::post('/{id}/deletefile', 'Api\DiaryController@removeFileFromDiary');
 });
 
 Route::prefix('tag')->middleware('google.auth')->group(function () {

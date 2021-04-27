@@ -22,6 +22,18 @@ class TagController extends ApiWithAuthController
         return TagResource::class;
     }
 
+    public function update(Request $request, $id)
+    {
+        $data = $request->only('name');
+        $user = $request->get('user');
+        $tag = $this->repository->findByTagName($data['name'], $user->id);
+        if ($tag) {
+            return parent::update($request, $id);
+        } else {
+            return ResponseHelper::response(trans('Tag name already exist'), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
     /**
      * Remove the specified resource from storage.
      *
