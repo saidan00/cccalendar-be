@@ -22,6 +22,7 @@ class CalendarEvent extends JsonResource
             'description' => $this->description,
             'start' => $this->start->dateTime,
             'end' => $this->end->dateTime,
+            'creator' => $this->creator,
             'attendees' => CalendarEventAttendee::collection($this->attendees),
             'tags' => TagResource::collection($this->tags()),
             'colorId' => $this->colorId,
