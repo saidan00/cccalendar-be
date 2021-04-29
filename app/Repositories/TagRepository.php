@@ -26,6 +26,16 @@ class TagRepository extends EloquentWithAuthRepository
         return $result;
     }
 
+    public function findByTagName(string $tagName, $tagId, $user_id = null)
+    {
+        $result = $this->_model->where('user_id', $user_id)
+            ->where('name', $tagName)
+            ->where('id', '!=', $tagId)
+            ->first();
+
+        return $result;
+    }
+
     public function deleteReferenceByDiaryId($diaryId)
     {
         DB::table('diary_tags')->where('diary_id', '=', $diaryId)->delete();

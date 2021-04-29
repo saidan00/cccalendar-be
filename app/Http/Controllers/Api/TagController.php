@@ -24,10 +24,10 @@ class TagController extends ApiWithAuthController
 
     public function update(Request $request, $id)
     {
-        $data = $request->only('name');
+        $data = $request->only(['name', 'id']);
         $user = $request->get('user');
-        $tag = $this->repository->findByTagName($data['name'], $user->id);
-        if ($tag) {
+        $tag = $this->repository->findByTagName($data['name'], $data['id'], $user->id);
+        if (!$tag) {
             return parent::update($request, $id);
         } else {
             return ResponseHelper::response(trans('Tag name already exist'), Response::HTTP_BAD_REQUEST);
