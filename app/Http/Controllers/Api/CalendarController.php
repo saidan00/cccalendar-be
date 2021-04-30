@@ -207,6 +207,7 @@ class CalendarController extends Controller
             'description' => '',
             'start' => 'required|date_format:Y-m-d H:i',
             'end' => 'required|date_format:Y-m-d H:i',
+            'recurrence' => 'string|in:weekly,monthly,yearly',
             'attendees' => 'array',
             'attendees.*' => 'email',
             'tags' => 'array',

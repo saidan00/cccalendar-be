@@ -162,6 +162,12 @@ class CalendarEventRepository
             'colorId' => $request->input('colorId'),
         ]);
 
+        if ($request->filled('recurrence')) {
+            $event['recurrence'] = [
+                "RRULE:FREQ=" . $request->input('recurrence')
+            ];
+        }
+
         $event = $this->calendarService->events->insert($this->calendarId, $event);
 
         return $this->mapToGoogleServiceCalendarEvent($event);

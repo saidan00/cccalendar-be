@@ -40,8 +40,8 @@ class DiaryRepository extends EloquentWithAuthRepository
 
         // lọc theo tag
         if (isset($params['tags'])) {
-            $diaries = $diaries->whereHas('tags', function ($query) use ($params) {
-                return $query->whereIn('name', $params['tags']);
+            $diaries = $diaries->whereDoesntHave('tags', function ($query) use ($params) {
+                $query->whereNotIn('name', $params['tags']);
             });
         }
 
