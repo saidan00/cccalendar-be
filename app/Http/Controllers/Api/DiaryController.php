@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Validator;
 
 class DiaryController extends ApiWithAuthController
 {
-
     private TagRepository $tagRepository;
 
     public function __construct(DiaryRepository $diaryRepository, TagRepository $tagRepository)

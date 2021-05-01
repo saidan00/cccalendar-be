@@ -49,7 +49,9 @@ Route::prefix('diary')->middleware('google.auth')->group(function () {
 Route::prefix('tag')->middleware('google.auth')->group(function () {
     Route::get('/', 'Api\TagController@index');
     Route::get('/{id}', 'Api\TagController@show');
-    Route::post('/', 'Api\TagController@store');
-    Route::put('/{id}', 'Api\TagController@update');
+    // Route::post('/', 'Api\TagController@store');
+    // Route::put('/{id}', 'Api\TagController@update');
     Route::delete('/{id}', 'Api\TagController@destroy');
 });
+
+// Route::get('test', 'Api\TagController@testPy');

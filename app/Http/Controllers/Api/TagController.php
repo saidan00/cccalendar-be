@@ -9,6 +9,7 @@ use App\Repositories\TagRepository;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class TagController extends ApiWithAuthController
 {
@@ -58,6 +59,18 @@ class TagController extends ApiWithAuthController
 
             return response()->json();
         }
+    }
+
+    public function testPy()
+    {
+        $diaries = DB::table('diaries')->get()->toJson();
+
+        $commandPath = Storage::path('test.py');
+        $command = escapeshellcmd($commandPath);
+        // shell_exec('chmod 666 ' . $commandPath);
+        $output = shell_exec($command . ' ' . "'$diaries'");
+        return $output;
+        // return $diaries;
     }
 
     protected function getValidationRules()
