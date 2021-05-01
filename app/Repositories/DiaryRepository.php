@@ -28,21 +28,19 @@ class DiaryRepository extends EloquentWithAuthRepository
         $diaries = $this->_model->where('user_id', $user_id);
         $itemsPerPage = 10;
 
-        // lọc theo title
-        if (isset($params['title'])) {
-            $diaries = $diaries->where('title', 'LIKE', '%' . $params['title'] . '%');
-        }
-
-        // lọc theo content
-        if (isset($params['content'])) {
-            $diaries = $diaries->where('content', 'LIKE', '%' . $params['content'] . '%');
-        }
-
         // lọc theo tag
         if (isset($params['tags'])) {
-            $diaries = $diaries->whereDoesntHave('tags', function ($query) use ($params) {
-                $query->whereNotIn('name', $params['tags']);
-            });
+            // chọn các diaries.id có chứa tất cả tags cần tìm
+            $diaryIdsContainAllTags = DB::table('tags')
+                ->select('diary_tags.diary_id')
+                ->join('diary_tags', 'tags.id', '=', 'diary_tags.tag_id')
+                ->where('tags.user_id', '=', $user_id)
+                ->whereIn('tags.name', $params['tags'])
+                ->groupBy('diary_tags.diary_id')
+                ->havingRaw('COUNT(tags.name) = ?', [count($params['tags'])])
+                ->pluck('diary_tags.diary_id')->toArray();
+
+            $diaries = $diaries->whereIn('id', $diaryIdsContainAllTags);
         }
 
         // lọc theo ngày
@@ -52,6 +50,16 @@ class DiaryRepository extends EloquentWithAuthRepository
 
         if (isset($params['toDate'])) {
             $diaries = $diaries->whereDate('created_at', '<=', $params['toDate']);
+        }
+
+        // lọc theo title
+        if (isset($params['title'])) {
+            $diaries = $diaries->where('title', 'LIKE', '%' . $params['title'] . '%');
+        }
+
+        // lọc theo content
+        if (isset($params['content'])) {
+            $diaries = $diaries->where('content', 'LIKE', '%' . $params['content'] . '%');
         }
 
         // sắp xếp

@@ -24,7 +24,7 @@ class Diary extends JsonResource
             'content' => $this->content,
             'date' => Carbon::parse($this->created_at)->format('Y-m-d'),
             'tags' => TagResource::collection($this->tags),
-            'images' => DiaryImageResource::collection($this->images),
+            // 'images' => DiaryImageResource::collection($this->images),
         ];
     }
 }

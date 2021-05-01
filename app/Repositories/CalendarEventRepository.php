@@ -123,17 +123,16 @@ class CalendarEventRepository
         // filter by tags
         if ($request->filled('tags')) {
             $tags = $request->input('tags');
+            $tagsCount = count($tags);
             foreach ($events as $key => $event) {
                 $eventTags = [];
                 foreach ($event->tags() as $eventTag) {
                     $eventTags[] = $eventTag->name;
                 }
 
-                foreach ($tags as $tag) {
-                    if (!in_array($tag, $eventTags)) {
-                        unset($events[$key]);
-                        break;
-                    }
+                // if eventTags don't contain all tags
+                if (count(array_intersect($tags, $eventTags)) != $tagsCount) {
+                    unset($events[$key]);
                 }
             }
         }
@@ -153,20 +152,23 @@ class CalendarEventRepository
             'summary' => $request->input('title'),
             'description' => $request->input('description'),
             'start' => [
-                'dateTime' => $this->convertTime($request->input('start'))
+                'dateTime' => $this->convertTime($request->input('start')),
+                'timeZone' => $this->timezone,
             ],
             'end' => [
-                'dateTime' => $this->convertTime($request->input('end'))
+                'dateTime' => $this->convertTime($request->input('end')),
+                'timeZone' => $this->timezone,
             ],
             'attendees' => $this->getAttendees($request->input('attendees')),
             'colorId' => $request->input('colorId'),
         ]);
 
-        if ($request->filled('recurrence')) {
-            $event['recurrence'] = [
-                "RRULE:FREQ=" . $request->input('recurrence')
-            ];
-        }
+        // if ($request->filled('recurrence')) {
+        //     $event['recurrence'] = [
+        //         "RRULE:FREQ=" . strtoupper($request->input('recurrence')),
+        //     ];
+        // }
+        // var_dump($event);
 
         $event = $this->calendarService->events->insert($this->calendarId, $event);
 
@@ -188,10 +190,12 @@ class CalendarEventRepository
                 'summary' => $request->input('title'),
                 'description' => $request->input('description'),
                 'start' => [
-                    'dateTime' => $this->convertTime($request->input('start'))
+                    'dateTime' => $this->convertTime($request->input('start')),
+                    'timeZone' => $this->timezone,
                 ],
                 'end' => [
-                    'dateTime' => $this->convertTime($request->input('end'))
+                    'dateTime' => $this->convertTime($request->input('end')),
+                    'timeZone' => $this->timezone,
                 ],
                 'attendees' => $this->getAttendees($request->input('attendees')),
                 'colorId' => $request->input('colorId'),
