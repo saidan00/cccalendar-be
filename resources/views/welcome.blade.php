@@ -85,7 +85,6 @@
         <div class="content">
             <div class="title m-b-md">
                 Laravel
-                <img src="http://cccalendar.pro:8080/public/images/20210413102359_6_36_RUO34F.png">
             </div>
 
             <div class=" links">

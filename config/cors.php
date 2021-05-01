@@ -15,11 +15,12 @@ return [
     |
     */
 
-    'paths' => ['api/*'],
+    'paths' => ['api/*', '*'],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    // 'allowed_origins' => ['*.cccalendar.pro', 'cccalendar.pro:*', '*.cccalendar.online'],
+    'allowed_origins' => ['http://cccalendar.pro:8082', 'cccalendar.pro:*'],
 
     'allowed_origins_patterns' => [],
 
