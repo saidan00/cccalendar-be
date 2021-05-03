@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['https://cccalendar.online', 'https://api.cccalendar.online'],
+    'allowed_origins' => ['https://cccalendar.online', 'https://www.cccalendar.online', 'https://api.cccalendar.online'],
 
     'allowed_origins_patterns' => [],
 
