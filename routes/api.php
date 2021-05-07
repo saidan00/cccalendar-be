@@ -54,4 +54,4 @@ Route::prefix('tag')->middleware('google.auth')->group(function () {
     Route::delete('/{id}', 'Api\TagController@destroy');
 });
 
-// Route::get('test', 'Api\TagController@testPy');
+Route::get('test', 'Api\TagController@testPy');

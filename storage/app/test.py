@@ -4,13 +4,13 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
 from sklearn.metrics import adjusted_rand_score
 
-# parse x:
+# # parse x:
 jsonDiaries = sys.argv[1]
 diaries = json.loads(jsonDiaries)
 documents = []
 
 for diary in diaries:
-    documents = diary["title"]
+    documents.append(diary["title"])
 
 vectorizer = TfidfVectorizer(stop_words='english')
 X = vectorizer.fit_transform(documents)
@@ -39,4 +39,4 @@ Y = vectorizer.transform(["My cat is hungry."])
 prediction = model.predict(Y)
 print(prediction)
 
-# print(json.dumps(diaries))
+# print(json.dumps(documents))
