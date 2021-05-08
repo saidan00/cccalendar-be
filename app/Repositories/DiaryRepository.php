@@ -27,8 +27,13 @@ class DiaryRepository extends EloquentWithAuthRepository
     {
         $diaries = $this->_model->where('user_id', $user_id);
         $itemsPerPage = 10;
+
         if (isset($params['containAllTag'])) {
             $params['containAllTag'] = filter_var($params['containAllTag'], FILTER_VALIDATE_BOOLEAN);
+        }
+
+        if (isset($params['all'])) {
+            $params['all'] = filter_var($params['all'], FILTER_VALIDATE_BOOLEAN);
         }
 
         // lọc theo tag
@@ -95,13 +100,16 @@ class DiaryRepository extends EloquentWithAuthRepository
             $diaries = $diaries->orderBy('created_at', 'desc');
         }
 
-        // phân trang
-        if (isset($params['itemsPerPage'])) {
-            $itemsPerPage = $params['itemsPerPage'];
-        }
-        $diaries = $diaries->paginate($itemsPerPage);
+        // nếu không fetch all
+        if (!isset($params['all']) || $params['all'] === false) {
+            // phân trang
+            if (isset($params['itemsPerPage'])) {
+                $itemsPerPage = $params['itemsPerPage'];
+            }
+            $diaries = $diaries->paginate($itemsPerPage);
 
-        $diaries->appends($params)->links();
+            $diaries->appends($params)->links();
+        }
 
         return $diaries;
     }
