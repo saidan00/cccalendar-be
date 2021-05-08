@@ -101,7 +101,9 @@ class DiaryRepository extends EloquentWithAuthRepository
         }
 
         // nếu không fetch all
-        if (!isset($params['all']) || $params['all'] === false) {
+        if (isset($params['all']) && $params['all'] === true) {
+            $diaries = $diaries->get();
+        } else {
             // phân trang
             if (isset($params['itemsPerPage'])) {
                 $itemsPerPage = $params['itemsPerPage'];

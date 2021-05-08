@@ -35,7 +35,7 @@ class DiaryController extends ApiWithAuthController
     public function index(Request $request)
     {
         $user = $request->get('user');
-        $params = $request->only(['title', 'content', 'fromDate', 'toDate', 'tags', 'containAllTag', 'sort', 'itemsPerPage', 'page']);
+        $params = $request->only(['title', 'content', 'fromDate', 'toDate', 'tags', 'containAllTag', 'sort', 'itemsPerPage', 'all', 'page']);
 
         $validator = Validator::make(
             $params,
