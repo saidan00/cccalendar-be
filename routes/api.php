@@ -50,7 +50,7 @@ Route::prefix('tag')->middleware('google.auth')->group(function () {
     Route::get('/', 'Api\TagController@index');
     Route::get('/{id}', 'Api\TagController@show');
     // Route::post('/', 'Api\TagController@store');
-    // Route::put('/{id}', 'Api\TagController@update');
+    Route::put('/{id}', 'Api\TagController@update');
     Route::delete('/{id}', 'Api\TagController@destroy');
 });
 

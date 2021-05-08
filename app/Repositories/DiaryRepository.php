@@ -27,10 +27,13 @@ class DiaryRepository extends EloquentWithAuthRepository
     {
         $diaries = $this->_model->where('user_id', $user_id);
         $itemsPerPage = 10;
+        if (isset($params['containAllTag'])) {
+            $params['containAllTag'] = filter_var($params['containAllTag'], FILTER_VALIDATE_BOOLEAN);
+        }
 
         // lọc theo tag
         if (isset($params['tags'])) {
-            if (isset($params['containAllTag']) && $params['containAllTag'] == true) {
+            if (isset($params['containAllTag']) && $params['containAllTag'] === true) {
                 // chọn các diaries.id có chứa tất cả tags cần tìm
                 $diaryIdsContainAllTags = DB::table('tags')
                     ->select('diary_tags.diary_id')
