@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import json, sys, os, math
+import json, sys
 import string
 import collections
 
@@ -10,11 +10,8 @@ from sklearn.cluster import KMeans
 from sklearn.feature_extraction.text import TfidfVectorizer
 from pprint import pprint
 
-script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
-
-with open(script_dir + '/event_1.json') as json_file:
-    jsonString = json_file.read()
-    diaries = json.loads(jsonString)
+jsonDiaries = sys.argv[1]
+print(jsonDiaries)
 
 def process_text(text, stem=True):
     """ Tokenize text and stem words removing punctuation """
@@ -32,7 +29,7 @@ def process_text(text, stem=True):
 def cluster_texts(texts, clusters=3):
     """ Transform texts to Tf-Idf coordinates and cluster texts using K-Means """
     vectorizer = TfidfVectorizer(tokenizer=process_text,
-                                 stop_words=stopwords.words('english'),
+                                 stop_words=stopwords.words('vietnamese'),
                                  max_df=0.5,
                                  min_df=0.1,
                                  lowercase=True)
@@ -50,6 +47,15 @@ def cluster_texts(texts, clusters=3):
 
 
 if __name__ == "__main__":
-    clusters = cluster_texts(diaries, math.floor(len(diaries)/20))
-    pprint(dict(clusters))
+    # parse x:
+    jsonDiaries = sys.argv[1]
+    print(jsonDiaries)
+    # diaries = json.loads(jsonDiaries)
+    # articles = []
+
+    # for diary in diaries:
+    #     articles.append(diary["title"])
+
+    # clusters = cluster_texts(articles, 5)
+    # pprint(dict(clusters))
     # print(diaries)

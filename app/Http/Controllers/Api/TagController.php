@@ -63,16 +63,23 @@ class TagController extends ApiWithAuthController
 
     public function testPy()
     {
-        $diaries = DB::table('diaries')->get()->toJson();
+        $diaries = DB::table('diaries')->get();
+        $diaryTitles = [];
+        foreach ($diaries as $diary) {
+            $diaryTitles[] = $diary->title;
+        }
+        Storage::put('event_1.json', json_encode($diaryTitles));
 
         $commandPath = Storage::path('test.py');
         $command = escapeshellcmd($commandPath);
-        // shell_exec('chmod 666 ' . $commandPath);
-        $output = shell_exec($command . ' ' . "'$diaries' 2>&1");
-        // $output = shell_exec($command .' 2>&1');
+        // $output = shell_exec($command);
+        // $output = shell_exec($command . ' ' . "'$diaries'");
+        $output = shell_exec($command .' 2>&1');
+        $result = substr($output, strpos($output, '{0'));
+        // $output = shell_exec($command);
         // $output = 123;
-        return $output;
-        // return $diaries;
+        return $result;
+        // return $output;
     }
 
     protected function getValidationRules()
