@@ -65,21 +65,32 @@ class TagController extends ApiWithAuthController
     {
         $diaries = DB::table('diaries')->get();
         $diaryTitles = [];
+
         foreach ($diaries as $diary) {
             $diaryTitles[] = $diary->title;
         }
+
+        // write to json array of diary title (string)
         Storage::put('event_1.json', json_encode($diaryTitles));
 
         $commandPath = Storage::path('test.py');
         $command = escapeshellcmd($commandPath);
-        // $output = shell_exec($command);
-        // $output = shell_exec($command . ' ' . "'$diaries'");
         $output = shell_exec($command .' 2>&1');
-        $result = substr($output, strpos($output, '{0'));
-        // $output = shell_exec($command);
-        // $output = 123;
-        return $result;
-        // return $output;
+
+        // get result from "{0" character
+        $resultFromOutput = substr($output, strpos($output, '{0'));
+        // $diaryClusters = json_decode($resultFromOutput);
+        $diaryClusters = json_decode($resultFromOutput);
+
+        foreach($diaryClusters as $key => $value) {
+            echo 'Cluster number: ' . $key . '<br/>';
+            foreach($value as $diaryIndex) {
+                echo $diaries[$diaryIndex]->title . '<br/>';
+            }
+            echo '<br/>';
+        }
+
+        // return $resultFromOutput;
     }
 
     protected function getValidationRules()

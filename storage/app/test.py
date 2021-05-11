@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import json, sys, os, math
+import json, sys, os, math, warnings
 import string
 import collections
 
@@ -31,8 +31,12 @@ def process_text(text, stem=True):
 
 def cluster_texts(texts, clusters=3):
     """ Transform texts to Tf-Idf coordinates and cluster texts using K-Means """
+    myStopwords = stopwords.words('english')
+    # stopwords_vn = stopwords.words('vietnamese')
+    stopwords_vn =['õ']
+    myStopwords.extend(stopwords_vn)
     vectorizer = TfidfVectorizer(tokenizer=process_text,
-                                 stop_words=stopwords.words('english'),
+                                 stop_words=myStopwords,
                                  max_df=0.5,
                                  min_df=0.1,
                                  lowercase=True)
@@ -50,6 +54,11 @@ def cluster_texts(texts, clusters=3):
 
 
 if __name__ == "__main__":
-    clusters = cluster_texts(diaries, math.floor(len(diaries)/20))
-    pprint(dict(clusters))
-    # print(diaries)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        clusters = cluster_texts(diaries, 10)
+        dictClusters = dict(clusters)
+        jsonClustersString = {str(k):v for k,v in dictClusters.items()}
+        jsonClusters = json.dumps(jsonClustersString)
+        # pprint(dict(clusters))
+        print(jsonClusters)
