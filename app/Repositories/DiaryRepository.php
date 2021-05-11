@@ -28,19 +28,34 @@ class DiaryRepository extends EloquentWithAuthRepository
         $diaries = $this->_model->where('user_id', $user_id);
         $itemsPerPage = 10;
 
+        if (isset($params['containAllTag'])) {
+            $params['containAllTag'] = filter_var($params['containAllTag'], FILTER_VALIDATE_BOOLEAN);
+        }
+
+        if (isset($params['all'])) {
+            $params['all'] = filter_var($params['all'], FILTER_VALIDATE_BOOLEAN);
+        }
+
         // lọc theo tag
         if (isset($params['tags'])) {
-            // chọn các diaries.id có chứa tất cả tags cần tìm
-            $diaryIdsContainAllTags = DB::table('tags')
-                ->select('diary_tags.diary_id')
-                ->join('diary_tags', 'tags.id', '=', 'diary_tags.tag_id')
-                ->where('tags.user_id', '=', $user_id)
-                ->whereIn('tags.name', $params['tags'])
-                ->groupBy('diary_tags.diary_id')
-                ->havingRaw('COUNT(tags.name) = ?', [count($params['tags'])])
-                ->pluck('diary_tags.diary_id')->toArray();
+            if (isset($params['containAllTag']) && $params['containAllTag'] === true) {
+                // chọn các diaries.id có chứa tất cả tags cần tìm
+                $diaryIdsContainAllTags = DB::table('tags')
+                    ->select('diary_tags.diary_id')
+                    ->join('diary_tags', 'tags.id', '=', 'diary_tags.tag_id')
+                    ->where('tags.user_id', '=', $user_id)
+                    ->whereIn('tags.name', $params['tags'])
+                    ->groupBy('diary_tags.diary_id')
+                    ->havingRaw('COUNT(tags.name) = ?', [count($params['tags'])])
+                    ->pluck('diary_tags.diary_id')->toArray();
 
-            $diaries = $diaries->whereIn('id', $diaryIdsContainAllTags);
+                $diaries = $diaries->whereIn('id', $diaryIdsContainAllTags);
+            } else {
+                // chọn các diaries có chứa 1 trong các tags cần tìm
+                $diaries = $diaries->whereHas('tags', function ($query) use ($params) {
+                    return $query->whereIn('name', $params['tags']);
+                });
+            }
         }
 
         // lọc theo ngày
@@ -85,13 +100,18 @@ class DiaryRepository extends EloquentWithAuthRepository
             $diaries = $diaries->orderBy('created_at', 'desc');
         }
 
-        // phân trang
-        if (isset($params['itemsPerPage'])) {
-            $itemsPerPage = $params['itemsPerPage'];
-        }
-        $diaries = $diaries->paginate($itemsPerPage);
+        // nếu không fetch all
+        if (isset($params['all']) && $params['all'] === true) {
+            $diaries = $diaries->get();
+        } else {
+            // phân trang
+            if (isset($params['itemsPerPage'])) {
+                $itemsPerPage = $params['itemsPerPage'];
+            }
+            $diaries = $diaries->paginate($itemsPerPage);
 
-        $diaries->appends($params)->links();
+            $diaries->appends($params)->links();
+        }
 
         return $diaries;
     }

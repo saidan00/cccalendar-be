@@ -1,21 +1,21 @@
 #!/usr/bin/env python
-import json, sys
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
 from sklearn.metrics import adjusted_rand_score
 
-# # parse x:
-jsonDiaries = sys.argv[1]
-diaries = json.loads(jsonDiaries)
-documents = []
-
-for diary in diaries:
-    documents.append(diary["title"])
+documents = ["This little kitty came to play when I was eating at a restaurant.",
+             "Merley has the best squooshy kitten belly.",
+             "Google Translate app is incredible.",
+             "If you open 100 tab in google you get a smiley face.",
+             "Best cat photo I've ever taken.",
+             "Climbing ninja cat.",
+             "Impressed with google map feedback.",
+             "Key promoter extension for Google Chrome."]
 
 vectorizer = TfidfVectorizer(stop_words='english')
 X = vectorizer.fit_transform(documents)
 
-true_k = 2
+true_k = 4
 model = KMeans(n_clusters=true_k, init='k-means++', max_iter=100, n_init=1)
 model.fit(X)
 
@@ -38,5 +38,3 @@ print(prediction)
 Y = vectorizer.transform(["My cat is hungry."])
 prediction = model.predict(Y)
 print(prediction)
-
-# print(json.dumps(documents))

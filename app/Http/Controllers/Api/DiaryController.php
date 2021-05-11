@@ -35,7 +35,7 @@ class DiaryController extends ApiWithAuthController
     public function index(Request $request)
     {
         $user = $request->get('user');
-        $params = $request->only(['title', 'content', 'fromDate', 'toDate', 'tags', 'sort', 'itemsPerPage', 'page']);
+        $params = $request->only(['title', 'content', 'fromDate', 'toDate', 'tags', 'containAllTag', 'sort', 'itemsPerPage', 'all', 'page']);
 
         $validator = Validator::make(
             $params,
@@ -103,7 +103,7 @@ class DiaryController extends ApiWithAuthController
     private function createOrUpdate(Request $request, $createOrUpdate = 'create', $id = null)
     {
         // except user_id để tránh việc client gửi request kèm user_id
-        $data = $request->except(['user_id']);
+        $data = $request->except(['user_id', 'images']);
 
         $validator = Validator::make(
             $data,

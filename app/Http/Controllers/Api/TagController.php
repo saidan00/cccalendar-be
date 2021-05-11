@@ -68,7 +68,9 @@ class TagController extends ApiWithAuthController
         $commandPath = Storage::path('test.py');
         $command = escapeshellcmd($commandPath);
         // shell_exec('chmod 666 ' . $commandPath);
-        $output = shell_exec($command . ' ' . "'$diaries'");
+        $output = shell_exec($command . ' ' . "'$diaries' 2>&1");
+        // $output = shell_exec($command .' 2>&1');
+        // $output = 123;
         return $output;
         // return $diaries;
     }

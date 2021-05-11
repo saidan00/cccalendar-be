@@ -122,17 +122,28 @@ class CalendarEventRepository
 
         // filter by tags
         if ($request->filled('tags')) {
-            $tags = $request->input('tags');
-            $tagsCount = count($tags);
-            foreach ($events as $key => $event) {
-                $eventTags = [];
-                foreach ($event->tags() as $eventTag) {
-                    $eventTags[] = $eventTag->name;
-                }
+            if ($request->filled('tags')) {
+                $tags = $request->input('tags');
+                $containAllTag = $request->boolean('containAllTag');
+                $tagsCount = count($tags);
 
-                // if eventTags don't contain all tags
-                if (count(array_intersect($tags, $eventTags)) != $tagsCount) {
-                    unset($events[$key]);
+                foreach ($events as $key => $event) {
+                    $eventTags = [];
+                    foreach ($event->tags() as $eventTag) {
+                        $eventTags[] = $eventTag->name;
+                    }
+
+                    if ($containAllTag === true) {
+                        // if eventTags don't contain all tags => unset event
+                        if (count(array_intersect($tags, $eventTags)) != $tagsCount) {
+                            unset($events[$key]);
+                        }
+                    } else {
+                        // if eventTags contain no tag in tags array => unset event
+                        if (count(array_intersect($tags, $eventTags)) == 0) {
+                            unset($events[$key]);
+                        }
+                    }
                 }
             }
         }
