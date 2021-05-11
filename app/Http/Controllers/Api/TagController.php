@@ -78,9 +78,9 @@ class TagController extends ApiWithAuthController
         $output = shell_exec($command .' 2>&1');
 
         // get result from "{0" character
-        $resultFromOutput = substr($output, strpos($output, '{0'));
+        // $resultFromOutput = substr($output, strpos($output, '{0'));
         // $diaryClusters = json_decode($resultFromOutput);
-        $diaryClusters = json_decode($resultFromOutput);
+        $diaryClusters = json_decode($output);
 
         foreach($diaryClusters as $key => $value) {
             echo 'Cluster number: ' . $key . '<br/>';

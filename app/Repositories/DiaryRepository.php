@@ -220,6 +220,51 @@ class DiaryRepository extends EloquentWithAuthRepository
         }
     }
 
+    public function kmeansClustering($user_id = null)
+    {
+        if ($user_id) {
+            $diaries = DB::table('diaries')->where('user_id', '=', $user_id)->get();
+
+            if (count($diaries) > 0) {
+                $diaryTitles = [];
+
+                foreach ($diaries as $diary) {
+                    $diaryTitles[] = $diary->title;
+                }
+
+                $fileName = "tmp_diary_$user_id.json";
+
+                // delete file if exists
+                Storage::delete($fileName);
+
+                // write new file
+                Storage::put($fileName, json_encode($diaryTitles));
+
+                $commandPath = Storage::path('kmeans.py');
+                $command = escapeshellcmd($commandPath);
+                $output = shell_exec($command . " diary $user_id 2>&1");
+
+                // delete file if exists
+                Storage::delete($fileName);
+
+                if ($output) {
+                    $diaryClusters = json_decode($output);
+
+                    foreach ($diaryClusters as $diaryCluster) {
+                        // echo 'Cluster number: ' . $key . '<br/>';
+                        // foreach ($value as $diaryIndex) {
+                        //     echo $diaries[$diaryIndex]->title . '<br/>';
+                        // }
+                        // echo '<br/>';
+                        yield $diaryCluster;
+                    }
+                }
+            }
+        } else {
+            return null;
+        }
+    }
+
     private function generateRandomString()
     {
         // Output: 54ESMD
