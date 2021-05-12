@@ -245,15 +245,9 @@ class DiaryController extends ApiWithAuthController
     public function clustering(Request $request)
     {
         $user = $request->get('user');
-        // $this->repository->kmeansClustering($user->id);
-        $diariesClusters = $this->repository->kmeansClustering(1);
-        foreach ($diariesClusters as $key => $value) {
-            echo 'Cluster number: ' . $key . '<br/>';
-            foreach ($value as $diaryIndex) {
-                echo $diaries[$diaryIndex]->title . '<br/>';
-            }
-            echo '<br/>';
-        }
+        $this->repository->kmeansClustering($user->id);
+        // $diariesClusters = $this->repository->kmeansClustering(1);
+        echo $user->id;
     }
 
     protected function getValidationRules()

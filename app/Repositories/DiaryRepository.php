@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Diary;
 use App\Repositories\EloquentWithAuthRepository;
+use App\Tag;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -250,13 +251,36 @@ class DiaryRepository extends EloquentWithAuthRepository
                 if ($output) {
                     $diaryClusters = json_decode($output);
 
-                    foreach ($diaryClusters as $diaryCluster) {
-                        // echo 'Cluster number: ' . $key . '<br/>';
-                        // foreach ($value as $diaryIndex) {
-                        //     echo $diaries[$diaryIndex]->title . '<br/>';
-                        // }
+                    foreach ($diaryClusters as $key => $diaryIndexs) {
+                        $tagName = 'tag_' . $this->generateRandomString() . "_$key";
+                        $tag = [$tagName, $user_id];
+
+                        // tránh auto increment id khi insert on duplicate
+                        // set auto_increment = max(id) + 1
+                        DB::statement("SET @NEW_AI = IFNULL((SELECT MAX(`id`) + 1 FROM `tags`),1);");
+                        DB::statement("SET @ALTER_SQL = CONCAT('ALTER TABLE `tags` AUTO_INCREMENT =', @NEW_AI);");
+                        DB::statement("PREPARE NEWSQL FROM @ALTER_SQL;");
+                        DB::statement("EXECUTE NEWSQL;");
+
+                        $query = 'INSERT INTO tags (name, user_id) VALUES (?, ?) ON DUPLICATE KEY UPDATE id=id';
+
+                        DB::insert($query, $tag);
+
+                        $tag = Tag::where([
+                            ['user_id', '=', $user_id],
+                            ['name', 'LIKE', $tagName],
+                        ])->first();
+
+                        foreach ($diaryIndexs as $diaryIndex) {
+
+                            $tagToInsert = [
+                                'diary_id' => $diaries[$diaryIndex]->id,
+                                'tag_id' => $tag->id
+                            ];
+
+                            DB::table('diary_tags')->insert($tagToInsert);
+                        }
                         // echo '<br/>';
-                        yield $diaryCluster;
                     }
                 }
             }
