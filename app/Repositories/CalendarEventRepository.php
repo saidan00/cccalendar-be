@@ -17,6 +17,7 @@ class CalendarEventRepository
     protected $timezone;
     protected $calendarId;
     protected $token;
+    protected $userId;
 
     public function __construct(Request $request)
     {
@@ -60,10 +61,13 @@ class CalendarEventRepository
     /**
      * Get event by id
      */
-    public function getEvent($eventId)
+    public function getEvent(Request $request, $eventId)
     {
         // if calendarService is null => getCalendarService()
         $this->calendarService = $this->calendarService ?? $this->getCalendarService();
+
+        // if userId is null => get user->id
+        $this->userId = $this->userId ?? $request->get('user')->id;
 
         $event = null;
 
@@ -83,6 +87,9 @@ class CalendarEventRepository
     {
         // if calendarService is null => getCalendarService()
         $this->calendarService = $this->calendarService ?? $this->getCalendarService();
+
+        // if userId is null => get user->id
+        $this->userId = $this->userId ?? $request->get('user')->id;
 
         $events = [];
         $optParams = [];
@@ -159,6 +166,9 @@ class CalendarEventRepository
         // if calendarService is null => getCalendarService()
         $this->calendarService = $this->calendarService ?? $this->getCalendarService();
 
+        // if userId is null => get user->id
+        $this->userId = $this->userId ?? $request->get('user')->id;
+
         $event = new Google_Service_Calendar_Event([
             'summary' => $request->input('title'),
             'description' => $request->input('description'),
@@ -193,6 +203,9 @@ class CalendarEventRepository
     {
         // if calendarService is null => getCalendarService()
         $this->calendarService = $this->calendarService ?? $this->getCalendarService();
+
+        // if userId is null => get user->id
+        $this->userId = $this->userId ?? $request->get('user')->id;
 
         $event = null;
 
@@ -261,7 +274,7 @@ class CalendarEventRepository
      */
     private function mapToGoogleServiceCalendarEvent($event)
     {
-        return new GoogleServiceCalendarEvent($event);
+        return new GoogleServiceCalendarEvent($event, $this->userId);
     }
 
     private function mapToGoogleServiceCalendarEvents(array $events)
