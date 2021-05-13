@@ -48,7 +48,7 @@ Route::prefix('diary')->middleware('google.auth')->group(function () {
 
 Route::prefix('clustering')->middleware('google.auth')->group(function () {
     Route::post('/diary', 'Api\DiaryController@clustering');
-    Route::post('/calendar', 'Api\CalendarController@clustering');
+    Route::post('/event', 'Api\CalendarController@clustering');
 });
 
 

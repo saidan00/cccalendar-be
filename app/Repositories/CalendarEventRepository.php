@@ -3,12 +3,15 @@
 namespace App\Repositories;
 
 use App\Components\GoogleServiceCalendarEvent;
+use App\Tag;
 use Exception;
 use Google_Client;
 use Google_Service_Calendar;
 use Google_Service_Calendar_Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class CalendarEventRepository
 {
@@ -249,6 +252,78 @@ class CalendarEventRepository
         return $event;
     }
 
+    public function kmeansClustering($user_id = null) {
+        if ($user_id) {
+            // if calendarService is null => getCalendarService()
+            $this->calendarService = $this->calendarService ?? $this->getCalendarService();
+
+            // lấy danh sách events theo điều kiện
+            $events = $this->calendarService->events->listEvents($this->calendarId)->getItems();
+
+            if (count($events) > 0) {
+                $events = $this->mapToGoogleServiceCalendarEvents($events);
+                $eventTitles = [];
+
+                foreach ($events as $event) {
+                    $eventTitles[] = $event->summary ?? '';
+                }
+
+                $fileName = "tmp_event_$user_id.json";
+
+                // delete file if exists
+                Storage::delete($fileName);
+
+                // write new file
+                Storage::put($fileName, json_encode($eventTitles));
+
+                $commandPath = Storage::path('kmeans.py');
+                $command = escapeshellcmd($commandPath);
+                $output = shell_exec($command . " event $user_id 2>&1");
+
+                // delete file if exists
+                Storage::delete($fileName);
+
+                if ($output) {
+                    $eventClusters = json_decode($output);
+                    $randomString = $this->generateRandomString();
+                    foreach ($eventClusters as $key => $eventIndexs) {
+                        $tagName = 'tag_event_' . $randomString . '_' . ($key + 1);
+                        $tag = [$tagName, $user_id];
+
+                        // tránh auto increment id khi insert on duplicate
+                        // set auto_increment = max(id) + 1
+                        DB::statement("SET @NEW_AI = IFNULL((SELECT MAX(`id`) + 1 FROM `tags`),1);");
+                        DB::statement("SET @ALTER_SQL = CONCAT('ALTER TABLE `tags` AUTO_INCREMENT =', @NEW_AI);");
+                        DB::statement("PREPARE NEWSQL FROM @ALTER_SQL;");
+                        DB::statement("EXECUTE NEWSQL;");
+
+                        $query = 'INSERT INTO tags (name, user_id) VALUES (?, ?) ON DUPLICATE KEY UPDATE id=id';
+
+                        DB::insert($query, $tag);
+
+                        $tag = Tag::where([
+                            ['user_id', '=', $user_id],
+                            ['name', 'LIKE', $tagName],
+                        ])->first();
+
+                        foreach ($eventIndexs as $eventIndex) {
+
+                            $tagToInsert = [
+                                'event_id' => $events[$eventIndex]->id,
+                                'tag_id' => $tag->id
+                            ];
+
+                            DB::table('event_tags')->insert($tagToInsert);
+                        }
+                    }
+                }
+            }
+            return;
+        } else {
+            return null;
+        }
+    }
+
     /**
      * Create attendees array from emails array
      */
@@ -291,5 +366,14 @@ class CalendarEventRepository
     private function convertTime($time, $min = 0)
     {
         return Carbon::parse($time, $this->timezone)->addMinutes($min)->toIso8601String();
+    }
+
+    private function generateRandomString()
+    {
+        // Output: 54ESMD
+        $permitted_chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+        $randStr = substr(str_shuffle($permitted_chars), 0, 6);
+        return $randStr;
     }
 }

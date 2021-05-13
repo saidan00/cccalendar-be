@@ -200,6 +200,12 @@ class CalendarController extends Controller
         return response()->json();
     }
 
+    public function clustering(Request $request)
+    {
+        $user = $request->get('user');
+        $this->calendarEventRepository->kmeansClustering($user->id);
+    }
+
     private function getStoreEventValidationRules()
     {
         return [
