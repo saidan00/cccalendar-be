@@ -46,7 +46,11 @@ Route::prefix('diary')->middleware('google.auth')->group(function () {
     // Route::post('/{id}/deletefile', 'Api\DiaryController@removeFileFromDiary');
 });
 
-Route::middleware('google.auth')->get('/diary-clustering', 'Api\DiaryController@clustering');
+Route::prefix('clustering')->middleware('google.auth')->group(function () {
+    Route::post('/diary', 'Api\DiaryController@clustering');
+    Route::post('/calendar', 'Api\CalendarController@clustering');
+});
+
 
 Route::prefix('tag')->middleware('google.auth')->group(function () {
     Route::get('/', 'Api\TagController@index');

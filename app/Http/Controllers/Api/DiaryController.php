@@ -246,8 +246,6 @@ class DiaryController extends ApiWithAuthController
     {
         $user = $request->get('user');
         $this->repository->kmeansClustering($user->id);
-        // $diariesClusters = $this->repository->kmeansClustering(1);
-        echo $user->id;
     }
 
     protected function getValidationRules()

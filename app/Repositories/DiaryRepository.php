@@ -250,9 +250,9 @@ class DiaryRepository extends EloquentWithAuthRepository
 
                 if ($output) {
                     $diaryClusters = json_decode($output);
-
+                    $randomString = $this->generateRandomString();
                     foreach ($diaryClusters as $key => $diaryIndexs) {
-                        $tagName = 'tag_' . $this->generateRandomString() . "_$key";
+                        $tagName = 'tag_diary_' . $randomString . '_' . ($key + 1);
                         $tag = [$tagName, $user_id];
 
                         // tránh auto increment id khi insert on duplicate
@@ -280,10 +280,10 @@ class DiaryRepository extends EloquentWithAuthRepository
 
                             DB::table('diary_tags')->insert($tagToInsert);
                         }
-                        // echo '<br/>';
                     }
                 }
             }
+            return;
         } else {
             return null;
         }
