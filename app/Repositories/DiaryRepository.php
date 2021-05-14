@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Diary;
 use App\Repositories\EloquentWithAuthRepository;
+use App\Tag;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -217,6 +218,74 @@ class DiaryRepository extends EloquentWithAuthRepository
                 ['user_id', '=', $userId],
                 ['name', '=', $fileName],
             ])->delete();
+        }
+    }
+
+    public function kmeansClustering($user_id = null)
+    {
+        if ($user_id) {
+            $diaries = DB::table('diaries')->where('user_id', '=', $user_id)->get();
+
+            if (count($diaries) > 0) {
+                $diaryTitles = [];
+
+                foreach ($diaries as $diary) {
+                    $diaryTitles[] = $diary->title;
+                }
+
+                $fileName = "tmp_diary_$user_id.json";
+
+                // delete file if exists
+                Storage::delete($fileName);
+
+                // write new file
+                Storage::put($fileName, json_encode($diaryTitles));
+
+                $commandPath = Storage::path('kmeans.py');
+                $command = escapeshellcmd($commandPath);
+                $output = shell_exec($command . " diary $user_id 2>&1");
+
+                // delete file if exists
+                Storage::delete($fileName);
+
+                if ($output) {
+                    $diaryClusters = json_decode($output);
+                    $randomString = $this->generateRandomString();
+                    foreach ($diaryClusters as $key => $diaryIndexs) {
+                        $tagName = 'tag_diary_' . $randomString . '_' . ($key + 1);
+                        $tag = [$tagName, $user_id];
+
+                        // tránh auto increment id khi insert on duplicate
+                        // set auto_increment = max(id) + 1
+                        DB::statement("SET @NEW_AI = IFNULL((SELECT MAX(`id`) + 1 FROM `tags`),1);");
+                        DB::statement("SET @ALTER_SQL = CONCAT('ALTER TABLE `tags` AUTO_INCREMENT =', @NEW_AI);");
+                        DB::statement("PREPARE NEWSQL FROM @ALTER_SQL;");
+                        DB::statement("EXECUTE NEWSQL;");
+
+                        $query = 'INSERT INTO tags (name, user_id) VALUES (?, ?) ON DUPLICATE KEY UPDATE id=id';
+
+                        DB::insert($query, $tag);
+
+                        $tag = Tag::where([
+                            ['user_id', '=', $user_id],
+                            ['name', 'LIKE', $tagName],
+                        ])->first();
+
+                        foreach ($diaryIndexs as $diaryIndex) {
+
+                            $tagToInsert = [
+                                'diary_id' => $diaries[$diaryIndex]->id,
+                                'tag_id' => $tag->id
+                            ];
+
+                            DB::table('diary_tags')->insert($tagToInsert);
+                        }
+                    }
+                }
+            }
+            return;
+        } else {
+            return null;
         }
     }
 

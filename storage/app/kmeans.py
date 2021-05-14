@@ -12,7 +12,12 @@ from pprint import pprint
 
 script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
 
-with open(script_dir + '/event_1.json') as json_file:
+# get argv
+target = sys.argv[1] # 'diary' or 'event'
+user_id = sys.argv[2]
+filename = "/tmp_" + target + "_" + user_id + ".json"
+
+with open(script_dir + filename) as json_file:
     jsonString = json_file.read()
     diaries = json.loads(jsonString)
 
@@ -56,9 +61,12 @@ def cluster_texts(texts, clusters=3):
 if __name__ == "__main__":
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
+
         clusters = cluster_texts(diaries, 10)
+
         dictClusters = dict(clusters)
         jsonClustersString = {str(k):v for k,v in dictClusters.items()}
+
         jsonClusters = json.dumps(jsonClustersString)
         # pprint(dict(clusters))
         print(jsonClusters)

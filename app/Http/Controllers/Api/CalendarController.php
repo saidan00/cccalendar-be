@@ -122,7 +122,7 @@ class CalendarController extends Controller
         $event = null;
 
         try {
-            $event = $this->calendarEventRepository->getEvent($id);
+            $event = $this->calendarEventRepository->getEvent($request, $id);
         } catch (Exception $e) {
             return ResponseHelper::response(trans('No event found'), Response::HTTP_NOT_FOUND);
         }
@@ -159,7 +159,7 @@ class CalendarController extends Controller
 
                 DB::transaction(function () use ($data, $user, $event) {
                     // xóa tất cả tag cũ của event (nếu có)
-                    $this->tagRepository->deleteReferenceByEventId($event->id);
+                    $this->tagRepository->deleteReferenceByEventId($event->id, $user->id);
 
                     // thêm các tag vào database (nếu trùng thì bỏ qua)
                     $this->tagRepository->insertNewTags($data['tags'], $user->id);
@@ -192,12 +192,18 @@ class CalendarController extends Controller
             $this->calendarEventRepository->deleteEvent($id);
 
             // xoá các event_tag
-            $this->tagRepository->deleteReferenceByEventId($id);
+            $this->tagRepository->deleteReferenceByEventId($id, $request->get('user')->id);
         } catch (Exception $e) {
             return ResponseHelper::response(trans('No event found'), Response::HTTP_NOT_FOUND);
         }
 
         return response()->json();
+    }
+
+    public function clustering(Request $request)
+    {
+        $user = $request->get('user');
+        $this->calendarEventRepository->kmeansClustering($user->id);
     }
 
     private function getStoreEventValidationRules()
