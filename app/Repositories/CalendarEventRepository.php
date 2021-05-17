@@ -97,7 +97,7 @@ class CalendarEventRepository
         $events = [];
         $optParams = [];
 
-        // $optParams['singleEvents'] = true;
+        $optParams['singleEvents'] = true;
 
         // start parameter is not empty
         // must be an RFC3339 timestamp, for example, 2011-06-03T10:00:00-07:00
@@ -127,7 +127,6 @@ class CalendarEventRepository
 
         // lấy danh sách events theo điều kiện
         $events = $this->calendarService->events->listEvents($this->calendarId, $optParams)->getItems();
-        Storage::put('test.json', json_encode($events));
 
         $events = $this->mapToGoogleServiceCalendarEvents($events);
 
