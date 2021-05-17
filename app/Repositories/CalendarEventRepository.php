@@ -97,7 +97,7 @@ class CalendarEventRepository
         $events = [];
         $optParams = [];
 
-        $optParams['singleEvents'] = true;
+        // $optParams['singleEvents'] = true;
 
         // start parameter is not empty
         // must be an RFC3339 timestamp, for example, 2011-06-03T10:00:00-07:00
@@ -127,6 +127,7 @@ class CalendarEventRepository
 
         // lấy danh sách events theo điều kiện
         $events = $this->calendarService->events->listEvents($this->calendarId, $optParams)->getItems();
+        Storage::put('test.json', json_encode($events));
 
         $events = $this->mapToGoogleServiceCalendarEvents($events);
 
@@ -252,7 +253,8 @@ class CalendarEventRepository
         return $event;
     }
 
-    public function kmeansClustering($user_id = null) {
+    public function kmeansClustering($user_id = null)
+    {
         if ($user_id) {
             // if calendarService is null => getCalendarService()
             $this->calendarService = $this->calendarService ?? $this->getCalendarService();
@@ -347,7 +349,7 @@ class CalendarEventRepository
     /**
      * Map to GoogleServiceCalendarEvent component
      */
-    private function mapToGoogleServiceCalendarEvent($event)
+    private function mapToGoogleServiceCalendarEvent(Google_Service_Calendar_Event $event)
     {
         return new GoogleServiceCalendarEvent($event, $this->userId);
     }
@@ -357,7 +359,9 @@ class CalendarEventRepository
         $eventsToReturn = [];
 
         foreach ($events as $event) {
-            $eventsToReturn[] = $this->mapToGoogleServiceCalendarEvent($event);
+            if ($event->getStatus() != 'cancelled') {
+                $eventsToReturn[] = $this->mapToGoogleServiceCalendarEvent($event);
+            }
         }
 
         return $eventsToReturn;
