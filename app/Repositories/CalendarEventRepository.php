@@ -288,7 +288,7 @@ class CalendarEventRepository
                     $eventClusters = json_decode($output);
                     $randomString = $this->generateRandomString();
                     foreach ($eventClusters as $key => $eventIndexs) {
-                        $tagName = 'tag_event_' . $randomString . '_' . ($key + 1);
+                        $tagName = 'event_' . strtolower($randomString) . '_' . ($key + 1);
                         $tag = [$tagName, $user_id];
 
                         // tránh auto increment id khi insert on duplicate
