@@ -21,7 +21,7 @@ class GoogleServiceCalendarEvent
     public function __construct(Google_Service_Calendar_Event $google_Service_Calendar_Event, $user_id)
     {
         $this->id = $google_Service_Calendar_Event->getId();
-        $this->summary = $google_Service_Calendar_Event->getSummary();
+        $this->summary = $google_Service_Calendar_Event->getSummary() ?? trans("(No title)");
         $this->description = $google_Service_Calendar_Event->getDescription();
         $this->start = $google_Service_Calendar_Event->getStart();
         $this->end = $google_Service_Calendar_Event->getEnd();

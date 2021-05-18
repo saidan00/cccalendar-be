@@ -7,5 +7,6 @@
     "The max length of title field is 255": "Độ dài tối đa của tiêu đề là 255",
     "The start field must be in format Y-m-d H:i": "Ngày phải đúng chuẩn Y-m-d H:i",
     "The end field must be in format Y-m-d H:i": "Ngày phải đúng chuẩn Y-m-d H:i",
-    "The attendees field must be valid email format": "Vui lòng nhập email đúng"
+    "The attendees field must be valid email format": "Vui lòng nhập email đúng",
+    "(No title)": "(Không có tiêu đề)"
 }

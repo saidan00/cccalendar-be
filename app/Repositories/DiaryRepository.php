@@ -41,25 +41,27 @@ class DiaryRepository extends EloquentWithAuthRepository
         }
 
         // lọc theo tag
-        $tagCount = count($params['tags']);
-        if (isset($params['tags']) && $tagCount > 0) {
-            if ($issetContainAllTag && $params['containAllTag'] === true) {
-                // chọn các diaries.id có chứa tất cả tags cần tìm
-                $diaryIdsContainAllTags = DB::table('tags')
-                    ->select('diary_tags.diary_id')
-                    ->join('diary_tags', 'tags.id', '=', 'diary_tags.tag_id')
-                    ->where('tags.user_id', '=', $user_id)
-                    ->whereIn('tags.name', $params['tags'])
-                    ->groupBy('diary_tags.diary_id')
-                    ->havingRaw('COUNT(tags.name) = ?', [$tagCount])
-                    ->pluck('diary_tags.diary_id')->toArray();
+        if (isset($params['tags'])) {
+            $tagCount = count($params['tags']);
+            if ($tagCount > 0) {
+                if ($issetContainAllTag && $params['containAllTag'] === true) {
+                    // chọn các diaries.id có chứa tất cả tags cần tìm
+                    $diaryIdsContainAllTags = DB::table('tags')
+                        ->select('diary_tags.diary_id')
+                        ->join('diary_tags', 'tags.id', '=', 'diary_tags.tag_id')
+                        ->where('tags.user_id', '=', $user_id)
+                        ->whereIn('tags.name', $params['tags'])
+                        ->groupBy('diary_tags.diary_id')
+                        ->havingRaw('COUNT(tags.name) = ?', [$tagCount])
+                        ->pluck('diary_tags.diary_id')->toArray();
 
-                $diaries = $diaries->whereIn('id', $diaryIdsContainAllTags);
-            } else {
-                // chọn các diaries có chứa 1 trong các tags cần tìm
-                $diaries = $diaries->whereHas('tags', function ($query) use ($params) {
-                    return $query->whereIn('name', $params['tags']);
-                });
+                    $diaries = $diaries->whereIn('id', $diaryIdsContainAllTags);
+                } else {
+                    // chọn các diaries có chứa 1 trong các tags cần tìm
+                    $diaries = $diaries->whereHas('tags', function ($query) use ($params) {
+                        return $query->whereIn('name', $params['tags']);
+                    });
+                }
             }
         }
 
