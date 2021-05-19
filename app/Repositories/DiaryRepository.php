@@ -29,33 +29,39 @@ class DiaryRepository extends EloquentWithAuthRepository
         $diaries = $this->_model->where('user_id', $user_id);
         $itemsPerPage = 10;
 
-        if (isset($params['containAllTag'])) {
+        $issetContainAllTag = isset($params['containAllTag']);
+        $issetAll = isset($params['all']);
+
+        if ($issetContainAllTag) {
             $params['containAllTag'] = filter_var($params['containAllTag'], FILTER_VALIDATE_BOOLEAN);
         }
 
-        if (isset($params['all'])) {
+        if ($issetAll) {
             $params['all'] = filter_var($params['all'], FILTER_VALIDATE_BOOLEAN);
         }
 
         // lọc theo tag
         if (isset($params['tags'])) {
-            if (isset($params['containAllTag']) && $params['containAllTag'] === true) {
-                // chọn các diaries.id có chứa tất cả tags cần tìm
-                $diaryIdsContainAllTags = DB::table('tags')
-                    ->select('diary_tags.diary_id')
-                    ->join('diary_tags', 'tags.id', '=', 'diary_tags.tag_id')
-                    ->where('tags.user_id', '=', $user_id)
-                    ->whereIn('tags.name', $params['tags'])
-                    ->groupBy('diary_tags.diary_id')
-                    ->havingRaw('COUNT(tags.name) = ?', [count($params['tags'])])
-                    ->pluck('diary_tags.diary_id')->toArray();
+            $tagCount = count($params['tags']);
+            if ($tagCount > 0) {
+                if ($issetContainAllTag && $params['containAllTag'] === true) {
+                    // chọn các diaries.id có chứa tất cả tags cần tìm
+                    $diaryIdsContainAllTags = DB::table('tags')
+                        ->select('diary_tags.diary_id')
+                        ->join('diary_tags', 'tags.id', '=', 'diary_tags.tag_id')
+                        ->where('tags.user_id', '=', $user_id)
+                        ->whereIn('tags.name', $params['tags'])
+                        ->groupBy('diary_tags.diary_id')
+                        ->havingRaw('COUNT(tags.name) = ?', [$tagCount])
+                        ->pluck('diary_tags.diary_id')->toArray();
 
-                $diaries = $diaries->whereIn('id', $diaryIdsContainAllTags);
-            } else {
-                // chọn các diaries có chứa 1 trong các tags cần tìm
-                $diaries = $diaries->whereHas('tags', function ($query) use ($params) {
-                    return $query->whereIn('name', $params['tags']);
-                });
+                    $diaries = $diaries->whereIn('id', $diaryIdsContainAllTags);
+                } else {
+                    // chọn các diaries có chứa 1 trong các tags cần tìm
+                    $diaries = $diaries->whereHas('tags', function ($query) use ($params) {
+                        return $query->whereIn('name', $params['tags']);
+                    });
+                }
             }
         }
 
@@ -102,7 +108,7 @@ class DiaryRepository extends EloquentWithAuthRepository
         }
 
         // nếu không fetch all
-        if (isset($params['all']) && $params['all'] === true) {
+        if ($issetAll && $params['all'] === true) {
             $diaries = $diaries->get();
         } else {
             // phân trang
@@ -252,7 +258,7 @@ class DiaryRepository extends EloquentWithAuthRepository
                     $diaryClusters = json_decode($output);
                     $randomString = $this->generateRandomString();
                     foreach ($diaryClusters as $key => $diaryIndexs) {
-                        $tagName = 'tag_diary_' . $randomString . '_' . ($key + 1);
+                        $tagName = 'diary_' . strtolower($randomString) . '_' . ($key + 1);
                         $tag = [$tagName, $user_id];
 
                         // tránh auto increment id khi insert on duplicate

@@ -252,7 +252,8 @@ class CalendarEventRepository
         return $event;
     }
 
-    public function kmeansClustering($user_id = null) {
+    public function kmeansClustering($user_id = null)
+    {
         if ($user_id) {
             // if calendarService is null => getCalendarService()
             $this->calendarService = $this->calendarService ?? $this->getCalendarService();
@@ -287,7 +288,7 @@ class CalendarEventRepository
                     $eventClusters = json_decode($output);
                     $randomString = $this->generateRandomString();
                     foreach ($eventClusters as $key => $eventIndexs) {
-                        $tagName = 'tag_event_' . $randomString . '_' . ($key + 1);
+                        $tagName = 'event_' . strtolower($randomString) . '_' . ($key + 1);
                         $tag = [$tagName, $user_id];
 
                         // tránh auto increment id khi insert on duplicate
@@ -347,7 +348,7 @@ class CalendarEventRepository
     /**
      * Map to GoogleServiceCalendarEvent component
      */
-    private function mapToGoogleServiceCalendarEvent($event)
+    private function mapToGoogleServiceCalendarEvent(Google_Service_Calendar_Event $event)
     {
         return new GoogleServiceCalendarEvent($event, $this->userId);
     }
@@ -357,7 +358,9 @@ class CalendarEventRepository
         $eventsToReturn = [];
 
         foreach ($events as $event) {
-            $eventsToReturn[] = $this->mapToGoogleServiceCalendarEvent($event);
+            if ($event->getStatus() != 'cancelled') {
+                $eventsToReturn[] = $this->mapToGoogleServiceCalendarEvent($event);
+            }
         }
 
         return $eventsToReturn;
