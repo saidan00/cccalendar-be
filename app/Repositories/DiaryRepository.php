@@ -94,17 +94,17 @@ class DiaryRepository extends EloquentWithAuthRepository
                     $diaries = $diaries->orderBy('title', 'desc');
                     break;
                 case 'newest':
-                    $diaries = $diaries->orderBy('created_at', 'desc');
+                    $diaries = $diaries->orderByRaw('date(created_at) desc, updated_at desc');
                     break;
                 case 'oldest':
-                    $diaries = $diaries->orderBy('created_at');
+                    $diaries = $diaries->orderByRaw('date(created_at), updated_at');
                     break;
                 default:
-                    $diaries = $diaries->orderBy('created_at', 'desc');
+                    $diaries = $diaries->orderByRaw('date(created_at) desc, updated_at desc');
                     break;
             }
         } else {
-            $diaries = $diaries->orderBy('created_at', 'desc');
+            $diaries = $diaries->orderByRaw('date(created_at) desc, updated_at desc');
         }
 
         // nếu không fetch all
