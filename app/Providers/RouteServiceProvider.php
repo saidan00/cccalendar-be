@@ -72,7 +72,9 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapApiRoutes()
     {
-        Route::prefix('api')
+        // Route::prefix('api')
+        Route::domain('api.cccalendar.online')
+        // Route::domain('api.cccalendar.pro')
             ->middleware('api')
             ->namespace($this->namespace)
             ->group(base_path('routes/api.php'));

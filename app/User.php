@@ -2,7 +2,6 @@
 
 namespace App;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -16,7 +15,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password', 'avatar'
     ];
 
     /**
@@ -36,4 +35,20 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function socialAccount()
+    {
+        return $this->hasOne('App\SocialAccount', 'user_id', 'id');
+    }
+
+    public function tags()
+    {
+        // biến thứ 3 là foreign key của model trung gian (model UserTag)
+        // biến thứ 4 là foreign key của model cuối cùng (model Tag)
+        // biến thứ 5 là local key (primary key của user)
+        // biến thứ 6 là local key (primary key của tag)
+        // return $this->hasManyThrough(Tag::class, UserTag::class, 'user_id', 'tag_id', 'id', 'id');
+
+        return $this->hasMany(Tag::class, '$user_id', '$id');
+    }
 }
